@@ -10,8 +10,8 @@ from abc import ABC, abstractmethod
 import numpy.typing as npt
 from sklearn.base import BaseEstimator
 
-from utils import screen, build_knockoff
-from association_measures import projection_corr
+from .utils import screen, build_knockoff
+from .association_measures import projection_corr
 
 class KnockOff(BaseEstimator, ABC):
 
@@ -35,7 +35,7 @@ class KnockOff(BaseEstimator, ABC):
             self.tr = projection_corr
 
 
-    def fit(self, X: npt.ArrayLike, y: npt.ArrayLike) -> KnockOff:
+    def fit(self, X: npt.ArrayLike, y: npt.ArrayLike):
         n = X.shape[0]
         n2 = n - self.n1
         ## need to check
