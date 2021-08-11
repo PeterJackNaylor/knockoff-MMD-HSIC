@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+work/
+.nextflow/
+.nextflow.*
+env/container_img.sif
