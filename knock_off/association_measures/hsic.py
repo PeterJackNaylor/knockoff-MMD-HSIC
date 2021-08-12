@@ -1,5 +1,3 @@
-import numpy as np
-
 from .kernel_tools import *
 
 
