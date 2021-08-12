@@ -1,0 +1,9 @@
+Bootstrap: docker
+From: python:3
+
+
+%files
+    requirements.txt .
+    
+%post
+    pip install -r requirements.txt
