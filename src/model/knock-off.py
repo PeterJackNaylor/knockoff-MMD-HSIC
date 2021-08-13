@@ -21,7 +21,7 @@ def main():
     ## Generate knock off variables
     alpha = 0.8
     n1 = 20
-    d = 100
+    d = 10
     tr = "PC"
     model = KnockOff(alpha, n1, d, measure_stat=tr)
     model.fit(X, y)

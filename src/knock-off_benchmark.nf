@@ -48,6 +48,7 @@ process knock_off {
         file("out")
     script:
         """
+        echo `printenv | grep PYTHONPATH`
         python ${CWD}/src/model/knock-off.py
         """
 
