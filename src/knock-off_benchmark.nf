@@ -1,12 +1,13 @@
 
 params.repeats = 1
-params.splits = 5
 
 DATASETS = ["model_2a", "model_2b", "model_2c", "model_2d"]
 ASSOCIATION_MEASURES = ["PC"]
 
 CWD = System.getProperty("user.dir")
 sample_size = [100, 500]
+// d depends mostly on n
+associated_d = ['100': 50, '500': 300]
 feature_size = [5e2, 5e3]
 
 process data {
@@ -47,10 +48,27 @@ process knock_off {
         each T from ASSOCIATION_MEASURES
         each alpha from 1..5
     output:
-        file("fdr.csv")
+        file("fdr.csv") into FDR
+    script:
+        feature_size = PARAMS.split(';')[1].split('=')[1]
+        """
+        echo ${feature_size}
+        python ${CWD}/src/model/knock-off.py --alpha ${alpha / 10} --t $T --n_1 0.3 --d ${associated_d[feature_size]} --param "$PARAMS"
+        """
+}
+
+
+FDR.collectFile(skip: 1, keepHeader: true)
+   .set { ALL_FDR }
+
+process plots_and_simulation_results {
+    publishDir "./ouputs/simulations_results", mode: 'copy', overwrite: 'true'
+    input:
+        file concatenated_exp from ALL_FDR
+    output:
+        file("*")
     script:
         """
-        python ${CWD}/src/model/knock-off.py --alpha ${alpha / 10} --t $T --n_1 0.3 --d 50 --param "$PARAMS"
+        python ${CWD}/src/results/simulation.py --csv_file $concatenated_exp
         """
-
 }
