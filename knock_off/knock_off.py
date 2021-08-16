@@ -70,29 +70,31 @@ class KnockOff(BaseEstimator, TransformerMixin):
         if stop:
             # raise ValueError(msg)
             print(msg)
-            self.alpha_indices_ = list(np.arange(p))
+            self.alpha_indices_ = []
+            self.n_features_out_ = 0
             return self
-
         if screening:
+            print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
             X2, y2 = X[set_two, :], y[set_two]
             A_d_hat = screen(X1, y1, d, self.get_association_measure())
         else:
+            print("No screening")
             X2 = X
             y2 = y
             A_d_hat = np.arange(p)
 
         # knock off step
         # construct knock off variables
-        wjs = build_knockoff(X2, y2, self.get_association_measure())
-
+        print("Starting knockoff step")
+        wjs = build_knockoff(X2[:, A_d_hat], y2, self.get_association_measure())
         self.alpha_indices_, self.t_alpha_ = threshold_alpha(wjs, A_d_hat, self.alpha)
 
         if len(self.alpha_indices_):
             print("selected features: ", self.alpha_indices_)
         else:
-            self.alpha_indices_ = list(A_d_hat)
-            print("No features were selected, returning all features.")
+            print("No features were selected, returning empty set.")
+        self.n_features_out_ = len(self.alpha_indices_)
         return self
 
     def transform(self, X, y=None):
@@ -172,7 +174,6 @@ def threshold_alpha(Ws, w_indice, alpha):
             return t_max
 
     t_alpha_list = list(map(fraction_3_6, Ws))
-    print(f"{t_alpha_list=}")
     t_alpha = min(t_alpha_list)
     indices = [w_indice[i] for i, el in enumerate(Ws) if el >= t_alpha]
     return indices, t_alpha

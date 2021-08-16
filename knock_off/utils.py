@@ -14,7 +14,6 @@ def screen(X, y, d, tr):
         return tr(np.expand_dims(x_j, axis=1), np.expand_dims(y, axis=1))
 
     w_js = np.apply_along_axis(w_j, 0, X)
-
     return w_js.argsort()[-d:][::-1]
 
 
@@ -30,7 +29,6 @@ def build_knockoff(X, y, tr):
         x_j = np.expand_dims(x_j, axis=1)
         x_j_hat = np.expand_dims(x_j_hat, axis=1)
         return tr(x_j, y) - tr(x_j_hat, y)
-    
     wjs = list(map(w_j, np.arange(d)))
     return wjs
 
@@ -76,6 +74,7 @@ def get_equi_features(X):
     Xn = np.random.randn(n, p)
     XX = np.hstack([Xstd, Xn])
     XXo = orthonormalize(XX)
+
     U = XXo[:, range(p,2*p)]
     
     Xnew = np.dot(Xstd, np.eye(p) - sigma_inv * sj) + np.dot(U, C)
@@ -112,6 +111,7 @@ can't satisfy condition d < n_2 / 2"
             else:
                 msg = "d badly set, reseting"
         if not stop:
+            screening = True
             msg = "Splitting the data"
             # split data
             indices = np.arange(n)
