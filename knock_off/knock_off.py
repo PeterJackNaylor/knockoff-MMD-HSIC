@@ -13,8 +13,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
 from .utils import screen, build_knockoff, knock_off_check_parameters
-from .association_measures import projection_corr
-
+from .association_measures import projection_corr, tr, distance_correlation
 
 class KnockOff(BaseEstimator, TransformerMixin):
     """
@@ -34,7 +33,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
     ) -> None:
         super().__init__()
         self.alpha = alpha
-        assert measure_stat in ["PC", "HSIC", "MMD"], "measure_stat incorrect"
+        assert measure_stat in ["PC", "DistanceCorrelation", "TR"], "measure_stat incorrect"
         self.measure_stat = measure_stat
 
     def fit(self, X: npt.ArrayLike, y: npt.ArrayLike, n1: float = 0.1, d: int = 1, seed: int = 42):
@@ -132,7 +131,16 @@ class KnockOff(BaseEstimator, TransformerMixin):
         """
         if self.measure_stat == "PC":
             f = projection_corr
-
+        elif self.measure_stat == "TR":
+            f = tr
+        elif self.measure_stat == "HSIC":
+            pass
+        elif self.measure_stat == "MMD":
+            pass
+        elif self.measure_stat == "DistanceCorrelation":
+            f = distance_correlation
+        else:
+            raise ValueError(f"associative measure undefined {self.measure_stat}")
         return f
 
     def _more_tags(self):

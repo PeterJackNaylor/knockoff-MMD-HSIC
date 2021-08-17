@@ -36,8 +36,10 @@ def get_arccos(X):
 
 
 def projection_corr(X, Y):
+    ## added by Peter, not in original code
+    X = np.expand_dims(X, axis=1)
+    Y = np.expand_dims(Y, axis=1)
     # X, Y are 2-d array
-    
     nx, p = X.shape
     ny, q = Y.shape
     

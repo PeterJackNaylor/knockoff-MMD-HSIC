@@ -1,8 +1,8 @@
 
 params.repeats = 1
 
-DATASETS = ["model_2a", "model_2b", "model_2c", "model_2d"]
-ASSOCIATION_MEASURES = ["PC"]
+DATASETS = ["model_2a"] //, "model_2b", "model_2c", "model_2d"]
+ASSOCIATION_MEASURES = ["PC", "DistanceCorrelation", "TR"]
 
 CWD = System.getProperty("user.dir")
 sample_size = [100, 500]

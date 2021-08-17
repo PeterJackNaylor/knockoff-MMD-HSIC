@@ -2,16 +2,10 @@
 import numpy as np
 from scipy.sparse.linalg import eigsh
 
-def screen(X, y, d, tr):
-
-    if len(y.shape) == 1:
-        q = 1
-    else:
-        q = y.shape[1]
-
-    # Xy = np.concatenate([X, np.expand_dims(y, axis=1)], axis=1)
+def screen(X, y, d, am):
+    
     def w_j(x_j):
-        return tr(np.expand_dims(x_j, axis=1), np.expand_dims(y, axis=1))
+        return am(x_j, y)
 
     w_js = np.apply_along_axis(w_j, 0, X)
     return w_js.argsort()[-d:][::-1]
@@ -19,16 +13,13 @@ def screen(X, y, d, tr):
 
 
 
-def build_knockoff(X, y, tr):
-    y = np.expand_dims(y, axis=1)
+def build_knockoff(X, y, am):
     d = X.shape[1]
     X_hat = get_equi_features(X)
     def w_j(i):
         x_j = X[:, i]
         x_j_hat = X_hat[:, i]
-        x_j = np.expand_dims(x_j, axis=1)
-        x_j_hat = np.expand_dims(x_j_hat, axis=1)
-        return tr(x_j, y) - tr(x_j_hat, y)
+        return am(x_j, y) - am(x_j_hat, y)
     wjs = list(map(w_j, np.arange(d)))
     return wjs
 
