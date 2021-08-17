@@ -17,6 +17,7 @@ def MMD(X, Y, kernel=kernel_gaussian):
         Kx = kernel(x, sigma)
 
         Kxy = kernel(x, sigma, Y)
+        # set diagonal to 0?
         mmd = (Kx + Ky - 2*Kxy).sum() / (n*(n-1))
         mmd_stats.append(mmd)
 
