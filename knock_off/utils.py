@@ -8,26 +8,28 @@ def screen(X, y, d, tr):
         q = 1
     else:
         q = y.shape[1]
-    Xy = np.concatenate([X, y], axis=0)
 
-    def w_j(sample_xy):
-        x, y = sample_xy[:-q], sample_xy[-q:]
-        return tr(x, y)
+    # Xy = np.concatenate([X, np.expand_dims(y, axis=1)], axis=1)
+    def w_j(x_j):
+        return tr(np.expand_dims(x_j, axis=1), np.expand_dims(y, axis=1))
 
-    w_js = np.apply_along_axis(w_j, 1, Xy)
-
+    w_js = np.apply_along_axis(w_j, 0, X)
     return w_js.argsort()[-d:][::-1]
 
 
 
 
-def build_knockoff(X, y, d, tr):
-    newX = get_equi_features(X)
+def build_knockoff(X, y, tr):
+    y = np.expand_dims(y, axis=1)
+    d = X.shape[1]
+    X_hat = get_equi_features(X)
     def w_j(i):
-        x_j = newX[:, i]
-        x_j_hat = newX[:, i+d]
+        x_j = X[:, i]
+        x_j_hat = X_hat[:, i]
+        x_j = np.expand_dims(x_j, axis=1)
+        x_j_hat = np.expand_dims(x_j_hat, axis=1)
         return tr(x_j, y) - tr(x_j_hat, y)
-    wjs = list(map(w_j, np.arrange(d)))
+    wjs = list(map(w_j, np.arange(d)))
     return wjs
 
 
@@ -72,7 +74,49 @@ def get_equi_features(X):
     Xn = np.random.randn(n, p)
     XX = np.hstack([Xstd, Xn])
     XXo = orthonormalize(XX)
+
     U = XXo[:, range(p,2*p)]
     
     Xnew = np.dot(Xstd, np.eye(p) - sigma_inv * sj) + np.dot(U, C)
     return Xnew
+
+
+
+def knock_off_check_parameters(n, p, n1, d):
+    set_one, set_two = None, None
+    screening, stop = False, False
+    msg = ''
+
+    if n in [1, 2, 3]:
+        # not possible because we want d < n / 2
+        msg = "Fit is not possible, data too small and \
+can't satisfy condition d < n_2 / 2"
+        index = list(np.arange(p))
+        stop = True
+
+    if p < n / 2:
+        # we skip if we don't need to further reduce the number of features
+        # in order to create exact knockoff features.
+        screening = False
+    else:
+        n2 = n - int(n1 * n)
+        # need to check
+        if d >= n2 / 2:
+            # d not set correctly so we set it to the highest plausible value
+            d = n2 / 2 - 1
+            if d <= 0:
+                msg = "Fit is not possible, data too small and \
+can't satisfy condition d < n_2 / 2"
+                stop = True
+            else:
+                msg = "d badly set, reseting"
+        if not stop:
+            screening = True
+            msg = "Splitting the data"
+            # split data
+            indices = np.arange(n)
+            np.random.shuffle(indices)
+            set_one = indices[:int(n1 * n)]
+            set_two = indices[int(n1 * n):] 
+    
+    return stop, screening, set_one, set_two, msg

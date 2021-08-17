@@ -10,9 +10,10 @@ def get_arccos(X):
     for r in range(n):
         
         xr = X[r]
-        X_r = X - xr
+        X_r = (X - xr).astype(float) # dealing with categorical values
         cross = np.dot(X_r, X_r.T)
         row_norm = np.sqrt(np.sum(X_r**2, axis = 1))
+
         outer_norm = np.outer(row_norm, row_norm)
         
         zero_idx = (outer_norm == 0.)
@@ -44,7 +45,7 @@ def projection_corr(X, Y):
         n = nx
     else:
         raise ValueError("sample sizes do not match.")
-        
+
     a_x, A_x = get_arccos(X)
     a_y, A_y = get_arccos(Y)
     
@@ -55,6 +56,9 @@ def projection_corr(X, Y):
     if S_xx * S_yy == 0.:
         corr = 0.
     else:
-        corr = np.sqrt( S_xy / np.sqrt(S_xx * S_yy) )
-    
+        try:
+            corr = np.sqrt( S_xy / np.sqrt(S_xx * S_yy) )
+        except:
+            print(S_xy, S_xx, S_yy)
     return corr
+
