@@ -10,6 +10,7 @@ sample_size = [100, 500]
 associated_d = ['100': 50, '500': 300]
 feature_size = [5e2, 5e3]
 
+
 process data {
     tag "DATASET=${data_name};n=${n};p=${p}"
 
@@ -26,20 +27,6 @@ process data {
         """
 }
 
-// process split_data {
-//     tag "${PARAMS};fold=${I}"
-
-//     input:
-//         set PARAMS, file(DATA) from XY
-//         each I from 0..(params.splits - 1)
-//         val SPLITS from params.splits
-
-//     output:
-//         set val("${PARAMS};fold=${I}"), file("Xy_train.npz"), file("Xy_test.npz") into splits
-    
-//     script:
-//         template 'train_test_split.py'
-// }
 
 process knock_off {
     
@@ -61,12 +48,13 @@ process knock_off {
 FDR.collectFile(skip: 1, keepHeader: true)
    .set { ALL_FDR }
 
+
 process plots_and_simulation_results {
-    publishDir "./ouputs/simulations_results", mode: 'copy', overwrite: 'true'
+    publishDir "./outputs/simulations_results", mode: 'copy', overwrite: 'true'
     input:
         file concatenated_exp from ALL_FDR
     output:
-        file("*")
+        set file("simulation_plot.html"), file("$concatenated_exp")
     script:
         """
         python ${CWD}/src/results/simulation.py --csv_file $concatenated_exp
