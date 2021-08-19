@@ -1,14 +1,28 @@
 
-params.repeats = 1
-
-DATASETS = ["model_2a"] //, "model_2b", "model_2c", "model_2d"]
-ASSOCIATION_MEASURES = ["PC", "DistanceCorrelation", "TR"]
 
 CWD = System.getProperty("user.dir")
-sample_size = [100, 500]
-// d depends mostly on n
-associated_d = ['100': 50, '500': 300]
-feature_size = [5e2, 5e3]
+
+params.full = 'true'
+
+params.repeats = 1
+
+if (params.full == 'true'){
+    DATASETS = ["model_2a", "model_2b", "model_2c", "model_2d"]
+    ASSOCIATION_MEASURES = ["PC", "DistanceCorrelation", "TR"]
+    sample_size = [100, 500]
+    // d depends mostly on n
+    associated_d = ['100': 50, '500': 300]
+    feature_size = [5e2, 5e3]
+}
+else {
+    DATASETS = ["model_2a"]
+    ASSOCIATION_MEASURES = ["PC"]
+    sample_size = [100, 500]
+    // d depends mostly on n
+    associated_d = ['100': 50, '500': 300]
+    feature_size = [5e2]
+}
+
 
 
 process data {
@@ -40,7 +54,10 @@ process knock_off {
         feature_size = PARAMS.split(';')[1].split('=')[1]
         """
         echo ${feature_size}
-        python ${CWD}/src/model/knock-off.py --alpha ${alpha / 10} --t $T --n_1 0.3 --d ${associated_d[feature_size]} --param "$PARAMS"
+        python ${CWD}/src/model/knock-off.py --alpha ${alpha / 10} \\
+                                            --t $T --n_1 0.3 \\
+                                            --d ${associated_d[feature_size]} \\
+                                            --param "$PARAMS"
         """
 }
 

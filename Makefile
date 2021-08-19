@@ -8,7 +8,11 @@ $(SINGULARITY_IMG): $(REQUIREMENTS)
 	bash env/create-singularity-container.sh
 
 simulation-vanilla: $(SINGULARITY_IMG)
-	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 2 -resume
+	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 2 --full false -resume
+
+
+simulation-cluster: $(SINGULARITY_IMG)
+	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 1000 -profile cluster -resume
 
 test: $(SINGULARITY_IMG)
 	singularity exec $(SINGULARITY_IMG) /bin/bash -c "cd ${PWD}; $(ENV); pytest test"
