@@ -1,22 +1,22 @@
-from .kernel_tools import *
+from .kernel_tools import get_kernel_function
 
 
-def MMD(X, Y, kernel=kernel_gaussian):
+def MMD(X, Y, kernel='gaussian'):
 
     n, d = X.shape
-    sigma = np.sqrt(d)
     ny = len(Y)
 
     assert n == ny
 
-    Ky = kernel(Y, sigma)
+    kernel, kernel_params = get_kernel_function(kernel, nfeats=d)
 
+    Ky = kernel(Y, **kernel_params)
     mmd_stats = []
 
     for x in X.T:
-        Kx = kernel(x, sigma)
+        Kx = kernel(x, **kernel_params)
+        Kxy = kernel(x, Y, **kernel_params)
 
-        Kxy = kernel(x, sigma, Y)
         # set diagonal to 0?
         mmd = (Kx + Ky - 2*Kxy).sum() / (n*(n-1))
         mmd_stats.append(mmd)

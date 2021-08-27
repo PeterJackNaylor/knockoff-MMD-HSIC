@@ -1,7 +1,17 @@
 import numpy as np
 
 
-def kernel_gaussian(x1, sigma, x2=None):
+def get_kernel_function(name, nfeats=1):
+    if name == 'gaussian':
+        kernel = kernel_gaussian
+        kernel_params = {'sigma': np.sqrt(nfeats)}
+    else:
+        raise "No valid kernel."
+
+    return kernel, kernel_params
+
+
+def kernel_gaussian(x1, x2=None, sigma=1):
     n = len(x1)
     x1_2 = np.power(x1, 2)
     x1_2 = np.tile(x1_2, (n, 1))
@@ -18,13 +28,12 @@ def kernel_gaussian(x1, sigma, x2=None):
     return K
 
 
-def center_K(K):
+def center(mat):
 
-    n = K.shape[0]
+    n = mat.shape[0]
 
-    H = np.eye(n, dtype=np.float32) - 1 / n * np.ones(n, dtype=np.float32)
+    H = np.eye(n) - 1 / n * np.ones([n, n])
+    mat = np.dot(np.dot(H, mat), H)
+    mat = mat / (np.linalg.norm(mat, 'fro') + 10e-10)
 
-    K = np.dot(np.dot(H, K), H)
-    K = K / (np.linalg.norm(K, 'fro') + 10e-10)
-
-    return K
+    return mat
