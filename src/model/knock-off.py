@@ -63,7 +63,7 @@ def main():
     fdr = false_discovery_rate(model)
     opt.param["fdr"] = fdr
     print(f"False discovery rate = {fdr}")
-    DataFrame(opt.param, index=[0]).to_csv("fdr.csv")
+    DataFrame(opt.param, index=[0]).to_csv("fdr.csv", index=False)
 
 if __name__ == "__main__":
     main()

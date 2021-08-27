@@ -130,3 +130,4 @@ work/
 .nextflow/
 .nextflow.*
 env/container_img.sif
+outputs
