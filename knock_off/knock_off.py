@@ -13,7 +13,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
 from .utils import screen, build_knockoff, knock_off_check_parameters
-from .association_measures import projection_corr, tr, distance_correlation
+from .association_measures import projection_corr, tr, distance_correlation, MMD, HSIC
 
 class KnockOff(BaseEstimator, TransformerMixin):
     """
@@ -134,9 +134,9 @@ class KnockOff(BaseEstimator, TransformerMixin):
         elif self.measure_stat == "TR":
             f = tr
         elif self.measure_stat == "HSIC":
-            pass
+            f = HSIC
         elif self.measure_stat == "MMD":
-            pass
+            f = MMD
         elif self.measure_stat == "DistanceCorrelation":
             f = distance_correlation
         else:
