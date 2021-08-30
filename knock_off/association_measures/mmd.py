@@ -20,8 +20,9 @@ def MMD(X, Y, kernel='gaussian'):
         Kx = kernel(X[:, i], **kernel_params)
         Kxy = kernel(X[:, i], Y[:, 0], **kernel_params)
 
-        # set diagonal to 0?
-        mmd = (Kx + Ky - 2*Kxy).sum() / (n*(n-1))
+        mmd_matrix = Kx + Ky - 2*Kxy
+        np.fill_diagonal(mmd_matrix, 0)  # remove self-similarity terms
+        mmd = np.sum(mmd_matrix) / (n*(n-1))
         mmd_stats[i] = mmd
 
     return mmd_stats
