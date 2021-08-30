@@ -6,19 +6,20 @@ from .kernel_tools import center, get_kernel_function
 def HSIC(X, Y, kernel='gaussian'):
 
     n, d = X.shape
-    ny = len(Y)
+    ny, dy = Y.shape
 
     assert n == ny
+    assert dy == 1
 
     kernel, kernel_params = get_kernel_function(kernel, nfeats=d)
 
-    Ky = center(kernel(Y, **kernel_params))
+    Ky = center(kernel(Y[:, 0], **kernel_params))
 
-    hsic_stats = []
+    hsic_stats = np.zeros((d, 1))
 
-    for x in X.T:
-        Kx = center(kernel(x, **kernel_params))
+    for i in range(d):
+        Kx = center(kernel(X[:, i], **kernel_params))
         hsic = np.trace(np.dot(Kx.T, Ky))
-        hsic_stats.append(hsic)
+        hsic_stats[i] = hsic
 
     return hsic_stats
