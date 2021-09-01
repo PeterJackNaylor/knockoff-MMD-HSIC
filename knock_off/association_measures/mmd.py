@@ -24,5 +24,4 @@ def MMD(X, Y, kernel='gaussian'):
         np.fill_diagonal(mmd_matrix, 0)  # remove self-similarity terms
         mmd = np.sum(mmd_matrix) / (n*(n-1))
         mmd_stats[i] = mmd
-
     return mmd_stats

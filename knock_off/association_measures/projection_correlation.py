@@ -37,30 +37,32 @@ def get_arccos(X):
 
 def projection_corr(X, Y):
     ## added by Peter, not in original code
-    X = np.expand_dims(X, axis=1)
-    Y = np.expand_dims(Y, axis=1)
+    # X = np.expand_dims(X, axis=1)
+    # Y = np.expand_dims(Y, axis=1)
+
     # X, Y are 2-d array
     nx, p = X.shape
     ny, q = Y.shape
-    
-    if nx == ny:
-        n = nx
-    else:
-        raise ValueError("sample sizes do not match.")
+    assert q == 1
+    assert nx == ny
 
-    a_x, A_x = get_arccos(X)
-    a_y, A_y = get_arccos(Y)
-    
-    S_xy = np.sum(A_x * A_y) / (n**3)
-    S_xx = np.sum(A_x**2) / (n**3)
-    S_yy = np.sum(A_y**2) / (n**3)
-    
-    if S_xx * S_yy == 0.:
-        corr = 0.
-    else:
-        try:
-            corr = np.sqrt( S_xy / np.sqrt(S_xx * S_yy) )
-        except:
-            print(S_xy, S_xx, S_yy)
-    return corr
+    pr_stats = np.zeros((p, 1))
+
+    for i in range(p):
+        a_x, A_x = get_arccos(X[:, i:i+1])
+        a_y, A_y = get_arccos(Y[:, 0:1])
+        
+        S_xy = np.sum(A_x * A_y) / (nx**3)
+        S_xx = np.sum(A_x**2) / (nx**3)
+        S_yy = np.sum(A_y**2) / (nx**3)
+        
+        if S_xx * S_yy == 0.:
+            corr = 0.
+        else:
+            try:
+                corr = np.sqrt( S_xy / np.sqrt(S_xx * S_yy) )
+            except:
+                print(S_xy, S_xx, S_yy)
+        pr_stats[i] = corr
+    return pr_stats
 

@@ -5,10 +5,12 @@ from scipy.sparse.linalg import eigsh
 def screen(X, y, d, am):
     
     def w_j(x_j):
+        x_j = np.expand_dims(x_j.copy(), axis=1)
         return am(x_j, y)
 
     w_js = np.apply_along_axis(w_j, 0, X)
-    return w_js.argsort()[-d:][::-1]
+    scores = w_js[0, 0].argsort()[-d:][::-1]
+    return scores
 
 
 
@@ -17,9 +19,9 @@ def build_knockoff(X, y, am):
     d = X.shape[1]
     X_hat = get_equi_features(X)
     def w_j(i):
-        x_j = X[:, i]
-        x_j_hat = X_hat[:, i]
-        return am(x_j, y) - am(x_j_hat, y)
+        x_j = X[:, i:i+1]
+        x_j_hat = X_hat[:, i:i+1]
+        return (am(x_j, y) - am(x_j_hat, y))[0,0]
     wjs = list(map(w_j, np.arange(d)))
     return wjs
 
@@ -48,7 +50,7 @@ def orthonormalize(X):
 
 def get_equi_features(X):
     # X is 2-d array
-
+    print(X.shape)
     n, p = X.shape
     scale = np.sqrt(np.sum(X**2, axis=0))
     Xstd = X / scale

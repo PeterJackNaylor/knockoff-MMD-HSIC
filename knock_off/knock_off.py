@@ -13,7 +13,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
 from .utils import screen, build_knockoff, knock_off_check_parameters
-from .association_measures import projection_corr, tr, distance_correlation, MMD, HSIC
+from .association_measures import projection_corr, tr, distance_corr, MMD, HSIC
 
 class KnockOff(BaseEstimator, TransformerMixin):
     """
@@ -25,15 +25,13 @@ class KnockOff(BaseEstimator, TransformerMixin):
     The model parameters once fitted will be alpha_indices.
     """
 
-    _required_parameters = ["alpha", "measure_stat"]
-
     def __init__(
         self, alpha: float = 1.0,
         measure_stat: str = "PC"
     ) -> None:
         super().__init__()
         self.alpha = alpha
-        assert measure_stat in ["PC", "DistanceCorrelation", "TR"], "measure_stat incorrect"
+        assert measure_stat in ["PC", "DistanceCorrelation", "TR", "HSIC", "MMD"], "measure_stat incorrect"
         self.measure_stat = measure_stat
 
     def fit(self, X: npt.ArrayLike, y: npt.ArrayLike, n1: float = 0.1, d: int = 1, seed: int = 42):
@@ -61,6 +59,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
             
         X, y = check_X_y(X, y)
         X = X.copy()
+        y = np.expand_dims(y, axis=1)
 
         n, p = X.shape
         self.n_features_in_ = p
@@ -72,11 +71,13 @@ class KnockOff(BaseEstimator, TransformerMixin):
             self.alpha_indices_ = []
             self.n_features_out_ = 0
             return self
+
         if screening:
             print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
             X2, y2 = X[set_two, :], y[set_two]
             A_d_hat = screen(X1, y1, d, self.get_association_measure())
+
         else:
             print("No screening")
             X2 = X
@@ -87,6 +88,8 @@ class KnockOff(BaseEstimator, TransformerMixin):
         # construct knock off variables
         print("Starting knockoff step")
         wjs = build_knockoff(X2[:, A_d_hat], y2, self.get_association_measure())
+        print(wjs)
+        print(A_d_hat)
         self.alpha_indices_, self.t_alpha_ = threshold_alpha(wjs, A_d_hat, self.alpha)
 
         if len(self.alpha_indices_):
@@ -138,7 +141,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
         elif self.measure_stat == "MMD":
             f = MMD
         elif self.measure_stat == "DistanceCorrelation":
-            f = distance_correlation
+            f = distance_corr
         else:
             raise ValueError(f"associative measure undefined {self.measure_stat}")
         return f
@@ -174,8 +177,8 @@ def threshold_alpha(Ws, w_indice, alpha):
 
     def fraction_3_6(t):
         num = (Ws <= -abs(t)).sum() + 1
-        den = (Ws >= abs(t)).sum()
-        is_below_alpha = (num / den) <= alpha if den != 0 else False
+        den = max((Ws >= abs(t)).sum(), 1)
+        is_below_alpha = (num / den) <= alpha
         if is_below_alpha:
             return abs(t)
         else:
@@ -184,6 +187,7 @@ def threshold_alpha(Ws, w_indice, alpha):
     t_alpha_list = list(map(fraction_3_6, Ws))
     t_alpha = min(t_alpha_list)
     indices = [w_indice[i] for i, el in enumerate(Ws) if el >= t_alpha]
+
     return indices, t_alpha
 
 

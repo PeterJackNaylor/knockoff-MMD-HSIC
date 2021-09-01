@@ -8,7 +8,7 @@ $(SINGULARITY_IMG): $(REQUIREMENTS)
 	bash env/create-singularity-container.sh
 
 simulation-vanilla: $(SINGULARITY_IMG)
-	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 2 --full false -resume
+	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 1 --full false -resume
 
 
 simulation-cluster: $(SINGULARITY_IMG)
