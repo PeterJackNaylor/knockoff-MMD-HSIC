@@ -19,7 +19,7 @@ def HSIC(X, Y, kernel='gaussian'):
 
     for i in range(d):
         Kx = center(kernel(X[:, i], **kernel_params))
-        hsic = np.trace(np.dot(Kx.T, Ky))
+        hsic = np.trace(np.matmul(Kx, Ky))
         hsic_stats[i] = hsic
 
     return hsic_stats

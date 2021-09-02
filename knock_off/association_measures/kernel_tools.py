@@ -12,28 +12,32 @@ def get_kernel_function(name, nfeats=1):
 
 
 def kernel_gaussian(x1, x2=None, sigma=1):
-    n = len(x1)
+
+    if len(x1.shape) == 1:
+        x1 = np.expand_dims(x1, axis=1)
+
     x1_2 = np.power(x1, 2)
-    x1_2 = np.tile(x1_2, (n, 1))
 
     if x2 is not None:
+        if len(x2.shape) == 1:
+            x2 = np.expand_dims(x2, axis=1)
         x2_2 = np.power(x2, 2)
-        x2_2 = np.tile(x2_2, (n, 1))
     else:
         x2 = x1
         x2_2 = x1_2
 
-    dist_2 = x2_2 + x1_2.T - 2 * np.dot(x1.T, x2)
+    dist_2 = x2_2 + x1_2.T - 2 * np.dot(x1, x2.T)
     K = np.exp(-dist_2 / (2 * np.power(sigma, 2)))
     return K
 
 
-def center(mat):
+def center(K):
 
-    n = mat.shape[0]
+    n, d = K.shape
 
-    H = np.eye(n) - 1 / n * np.ones([n, n])
-    mat = np.dot(np.dot(H, mat), H)
-    mat = mat / (np.linalg.norm(mat, 'fro') + 10e-10)
+    assert n == d
 
-    return mat
+    H = np.eye(n) - 1 / n * np.ones((n, n))
+    KH = np.matmul(K, H)
+
+    return KH
