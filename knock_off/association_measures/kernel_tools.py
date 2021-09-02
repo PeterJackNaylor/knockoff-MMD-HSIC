@@ -31,12 +31,13 @@ def kernel_gaussian(x1, x2=None, sigma=1):
     return K
 
 
-def center(mat):
+def center(K):
 
-    n = mat.shape[0]
+    n, d = K.shape
 
-    H = np.eye(n) - 1 / n * np.ones([n, n])
-    mat = np.dot(np.dot(H, mat), H)
-    mat = mat / (np.linalg.norm(mat, 'fro') + 10e-10)
+    assert n == d
 
-    return mat
+    H = np.eye(n) - 1 / n * np.ones((n, n))
+    KH = np.matmul(K, H)
+
+    return KH
