@@ -50,7 +50,6 @@ def orthonormalize(X):
 
 def get_equi_features(X):
     # X is 2-d array
-    print(X.shape)
     n, p = X.shape
     scale = np.sqrt(np.sum(X**2, axis=0))
     Xstd = X / scale

@@ -31,7 +31,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
     ) -> None:
         super().__init__()
         self.alpha = alpha
-        assert measure_stat in ["PC", "DistanceCorrelation", "TR", "HSIC", "MMD"], "measure_stat incorrect"
+        assert measure_stat in ["PC", "DC", "TR", "HSIC", "MMD"], "measure_stat incorrect"
         self.measure_stat = measure_stat
 
     def fit(self, X: npt.ArrayLike, y: npt.ArrayLike, n1: float = 0.1, d: int = 1, seed: int = 42):
@@ -88,9 +88,8 @@ class KnockOff(BaseEstimator, TransformerMixin):
         # construct knock off variables
         print("Starting knockoff step")
         wjs = build_knockoff(X2[:, A_d_hat], y2, self.get_association_measure())
-        print(wjs)
-        print(A_d_hat)
         self.alpha_indices_, self.t_alpha_ = threshold_alpha(wjs, A_d_hat, self.alpha)
+        self.wjs = wjs
 
         if len(self.alpha_indices_):
             print("selected features: ", self.alpha_indices_)
@@ -140,7 +139,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
             f = HSIC
         elif self.measure_stat == "MMD":
             f = MMD
-        elif self.measure_stat == "DistanceCorrelation":
+        elif self.measure_stat == "DC":
             f = distance_corr
         else:
             raise ValueError(f"associative measure undefined {self.measure_stat}")
@@ -187,7 +186,6 @@ def threshold_alpha(Ws, w_indice, alpha):
     t_alpha_list = list(map(fraction_3_6, Ws))
     t_alpha = min(t_alpha_list)
     indices = [w_indice[i] for i, el in enumerate(Ws) if el >= t_alpha]
-
+    if t_max == t_alpha:
+        t_alpha = np.inf
     return indices, t_alpha
-
-

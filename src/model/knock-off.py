@@ -5,7 +5,6 @@ from pandas import DataFrame
 
 from knock_off import KnockOff
 
-
 def load_npz(path):
     data = np.load(path)
     X = data['X']
@@ -26,6 +25,24 @@ def false_discovery_rate(model):
         fdr = (n_selected - number_of_correct_positives) / n_selected
         return fdr
 
+def f_fdp(t, w):
+    num = (w <= -t).sum()
+    den = max((w >= t).sum(), 1)
+    return num / den 
+
+def false_discovery_proportion(model):
+
+    if model.n_features_out_ == 0:
+        print("No feature selection process happened")
+        return [None], [None]
+    else:
+        wjs = model.wjs
+        t_s = wjs.copy()
+        t_s = [abs(w) for w in t_s]
+        t_s.sort()
+        fdp = [f_fdp(t, wjs) for t in t_s]
+        return t_s, fdp
+
 def options():
     # options
     parser = argparse.ArgumentParser(description="Knock off run")
@@ -38,12 +55,12 @@ def options():
 
     if args.param:
         d = dict(x.split("=") for x in args.param.split(";"))
-        args.param = d
-        args.param["AM"] = args.t
-        args.param["alpha"] = args.alpha
-        args.param["n_1"] = args.n_1
-        args.param["d"] = args.d
-
+        args.param_d = d
+        args.param_d["AM"] = args.t
+        args.param_d["alpha"] = args.alpha
+        args.param_d["n_1"] = args.n_1
+        args.param_d["d"] = args.d
+        args.param += f";AM={args.t};alpha={args.alpha};n_1={args.n_1};d={args.d}"
     return args
 
 def main():
@@ -60,10 +77,14 @@ def main():
     print("Fit process finished")
 
     ## Record fdr and report parameters
+    t_s, fdp = false_discovery_proportion(model)
     fdr = false_discovery_rate(model)
-    opt.param["fdr"] = fdr
+    opt.param_d["fdr"] = fdr
     print(f"False discovery rate = {fdr}")
-    DataFrame(opt.param, index=[0]).to_csv("fdr.csv", index=False)
+    DataFrame(opt.param_d, index=[0]).to_csv("fdr.csv", index=False)
+
+    params = opt.param.replace(";", "--").replace(".", ",")
+    DataFrame({"t": t_s, "fdp": fdp}).to_csv(f"fdp_{params}.csv", index=False)
 
 if __name__ == "__main__":
     main()
