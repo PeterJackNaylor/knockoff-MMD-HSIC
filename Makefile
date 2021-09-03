@@ -1,6 +1,6 @@
 
 DATA_FOLDER = data/
-ENV=export PYTHONPATH=`pwd`:`pwd`/src:$${PYTHONPATH}
+ENV=export PYTHONPATH=`pwd`:`pwd`/src:$${PYTHONPATH}; export NXF_OPTS="-Xms500M -Xmx2G"
 SINGULARITY_IMG = env/container_img.sif
 REQUIREMENTS = env/requirements.txt
 
