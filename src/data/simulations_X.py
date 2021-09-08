@@ -10,24 +10,27 @@ def options():
     args = parser.parse_args()
     return args
 
-def generate_X(n, p):
-    sigma = generate_S(p)
+def generate_X(n, p, correlated):
+    sigma = generate_S(p, correlated)
     mean = np.zeros(p)
     x = np.random.multivariate_normal(mean, sigma, size=n)
     return x
 
-def generate_S(p):
-    output = np.zeros(shape=(p, p)) + 0.5
-    sigma_mat_power = np.zeros(shape=(p, p))
-    for i in range(1, p):
-        l_indices = np.arange(p-i)
-        r_indices = l_indices + i 
-        sigma_mat_power[l_indices, r_indices] = i
-    output = np.power(output, sigma_mat_power + sigma_mat_power.T)
+def generate_S(p, correlated):
+    if correlated:
+        output = np.zeros(shape=(p, p)) + 0.5
+        sigma_mat_power = np.zeros(shape=(p, p))
+        for i in range(1, p):
+            l_indices = np.arange(p-i)
+            r_indices = l_indices + i 
+            sigma_mat_power[l_indices, r_indices] = i
+        output = np.power(output, sigma_mat_power + sigma_mat_power.T)
+    else:
+        output = np.eye(p)
     return output
 
-def produce_synthetic_data(n, p, formula):
-    X = generate_X(n, p)
+def produce_synthetic_data(n, p, formula, correlated=True):
+    X = generate_X(n, p, correlated)
     y = formula(X, n=n)
     np.savez("Xy.npz", X=X, Y=y)
 
