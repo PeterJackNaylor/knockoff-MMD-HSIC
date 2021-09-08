@@ -36,7 +36,7 @@ def false_discovery_proportion(model):
         print("No feature selection process happened")
         return [None], [None]
     else:
-        wjs = model.wjs
+        wjs = model.wjs_
         t_s = wjs.copy()
         t_s = [abs(w) for w in t_s]
         t_s.sort()
