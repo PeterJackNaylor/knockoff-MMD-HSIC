@@ -10,7 +10,6 @@ def MMD(X, Y, kernel='gaussian'):
 
     assert n == ny
     assert nd == 1
-
     kernel, kernel_params = get_kernel_function(kernel, nfeats=d)
 
     Ky = kernel(Y[:, 0], **kernel_params)
@@ -19,8 +18,7 @@ def MMD(X, Y, kernel='gaussian'):
     for i in range(d):
         Kx = kernel(X[:, i], **kernel_params)
         Kxy = kernel(X[:, i], Y[:, 0], **kernel_params)
-
-        mmd_matrix = Kx + Ky - 2*Kxy
+        mmd_matrix = Kx + Ky - Kxy - Kxy.T
         np.fill_diagonal(mmd_matrix, 0)  # remove self-similarity terms
         mmd = np.sum(mmd_matrix) / (n*(n-1))
         mmd_stats[i] = mmd

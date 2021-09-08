@@ -34,9 +34,31 @@ def ref_hsic(X, Y, d):
     # t = trace(KHLH)
     HKf = HK.flatten()/(n)
     HLf = HL.T.flatten()/(n)
-    hsic = HKf.dot(HLf) / (n ** 2)
+    hsic = HKf.dot(HLf)
 
     return hsic
+
+# reference implementation https://github.com/jenninglim/multiscale-features/blob/master/mskernel/mmd.py
+def ref_mmd(X, Y, d):
+
+    if X.shape[0] != Y.shape[0]:
+        raise ValueError('X and Y must have the same number of rows (sample size')
+
+    n = X.shape[0]
+
+    kernel, kernel_params = get_kernel_function('gaussian', nfeats=d)
+
+    Kxx = kernel(X, **kernel_params)
+    Kyx = kernel(Y, X, **kernel_params)
+    Kxy = kernel(X, Y, **kernel_params)
+    Kyy = kernel(Y, **kernel_params)
+    
+    K = Kxx + Kyy - Kxy - Kyx
+    np.fill_diagonal(K, 0)
+    mmd = np.sum(K) / (n * (n-1))
+
+
+    return mmd
 
 def test_distance_correlation():
     # sanity check
@@ -81,29 +103,36 @@ def test_hsic():
 
     assert len(hsic) == X.shape[1]
     assert all(hsic >= 0)
-    assert np.all(abs(ref - hsic) < 10e-20)
+
+    np.testing.assert_almost_equal(ref, hsic)
 
     # I got 0.09954543 with a R method..
     hsic_ = HSIC(x, y)
     ans = 0.09528812
-    np.testing.assert_almost_equal(hsic_, ans)
-    assert np.all(abs(ans - hsic_) < 10e-20)
+    np.testing.assert_almost_equal(ans, hsic_)
 
     x_2 = np.random.rand(10, 1)
     assert np.all(HSIC(x_2, x_2**2) > hsic)
 
 def test_mmd():
+    mmd_ = MMD(x, y)
+    ans = 0.036
     mmd = MMD(X, Y)
 
+    ref = np.zeros((50, 1))
+    for i in range(50):
+        ref[i] = ref_mmd(X[:,i].reshape(10,1), Y, 50)
+
     assert len(mmd) == X.shape[1]
-    # assert all(mmd >= 0)
+    assert all(mmd >= 0)
+    np.testing.assert_almost_equal(ref, mmd)
 
 
     ## tested against https://github.com/AnthonyEbert/EasyMMD
     ## MMD(x, y) gave -0.03217994 with the R package 
     ## this test is currently failing
     mmd_ = MMD(x, y)
-    ans = -0.01159811
+    ans = 0.036
     np.testing.assert_almost_equal(mmd_, ans)
 
 

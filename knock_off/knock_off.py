@@ -89,7 +89,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
         print("Starting knockoff step")
         wjs = build_knockoff(X2[:, A_d_hat], y2, self.get_association_measure())
         self.alpha_indices_, self.t_alpha_ = threshold_alpha(wjs, A_d_hat, self.alpha)
-        self.wjs = wjs
+        self.wjs_ = wjs
 
         if len(self.alpha_indices_):
             print("selected features: ", self.alpha_indices_)

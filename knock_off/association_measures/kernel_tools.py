@@ -26,7 +26,7 @@ def kernel_gaussian(x1, x2=None, sigma=1):
         x2 = x1
         x2_2 = x1_2
 
-    dist_2 = x2_2 + x1_2.T - 2 * np.dot(x1, x2.T)
+    dist_2 = x2_2 + x1_2.T - 2 * np.dot(x2, x1.T)
     K = np.exp(-dist_2 / (2 * np.power(sigma, 2)))
     return K
 
