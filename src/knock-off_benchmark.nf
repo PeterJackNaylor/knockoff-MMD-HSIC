@@ -7,7 +7,7 @@ params.full = 'true'
 params.repeats = 1
 
 if (params.full == 'true'){
-    DATASETS = ["model_2a", "model_2b", "model_2c", "model_2d"]
+    DATASETS = ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]
     ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "MMD"]
     sample_size = [100, 500]
     // d depends mostly on n
@@ -17,7 +17,7 @@ if (params.full == 'true'){
     ALPHA_MAX = 9
 }
 else {
-    DATASETS = ["model_2a"]
+    DATASETS = ["model_0"]
     ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "MMD"]
     sample_size = [200]
     // d depends mostly on n
