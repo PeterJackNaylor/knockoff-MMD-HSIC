@@ -8,7 +8,7 @@ params.repeats = 1
 
 if (params.full == 'true'){
     DATASETS = ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]
-    ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "MMD"]
+    ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC"] //, "MMD"]
     sample_size = [100, 500]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300]
