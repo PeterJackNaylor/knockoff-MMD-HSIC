@@ -141,3 +141,16 @@ def test_mmd():
 
 
 
+def test_kernelfunction():
+    d = 50
+    kernel, kernel_params = get_kernel_function('gaussian', nfeats=d)
+    Ky = kernel(Y[:, 0].reshape(10,1), **kernel_params)
+    assert (Ky >= 0).all()
+    assert (Ky <= 1).all()
+    for i in range(d):
+        Kx = kernel(X[:, i].reshape(10,1), **kernel_params)
+        Kxy = kernel(X[:, i].reshape(10,1), Y[:, 0].reshape(10,1), **kernel_params)
+        assert (Kx >= 0).all()
+        assert (Kx <= 1).all()
+        assert (Kxy >= 0).all()
+        assert (Kxy <= 1).all()
