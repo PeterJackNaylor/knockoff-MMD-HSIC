@@ -16,15 +16,14 @@ def generate_X(n, p, correlated):
     x = np.random.multivariate_normal(mean, sigma, size=n)
     return x
 
-def generate_S(p, correlated):
+def generate_S(p, correlated, power=2):
     if correlated:
-        output = np.zeros(shape=(p, p)) + 0.5
-        sigma_mat_power = np.zeros(shape=(p, p))
+        dist_diagonal = np.zeros(shape=(p, p))
         for i in range(1, p):
             l_indices = np.arange(p-i)
             r_indices = l_indices + i 
-            sigma_mat_power[l_indices, r_indices] = i
-        output = np.power(output, sigma_mat_power + sigma_mat_power.T)
+            dist_diagonal[l_indices, r_indices] = i
+        output = 1 / np.power(power, dist_diagonal + dist_diagonal.T)
     else:
         output = np.eye(p)
     return output
