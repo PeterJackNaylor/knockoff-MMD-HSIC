@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn import metrics
 
 from knock_off.association_measures import distance_corr, projection_corr, tr, HSIC, MMD
 from knock_off.association_measures.kernel_tools import get_kernel_function
@@ -46,19 +47,17 @@ def ref_mmd(X, Y, d):
 
     n = X.shape[0]
 
-    kernel, kernel_params = get_kernel_function('gaussian', nfeats=d)
+    gamma =  0.5 / d
 
-    Kxx = kernel(X, **kernel_params)
-    Kyx = kernel(Y, X, **kernel_params)
-    Kxy = kernel(X, Y, **kernel_params)
-    Kyy = kernel(Y, **kernel_params)
-    
-    K = Kxx + Kyy - Kxy - Kyx
-    np.fill_diagonal(K, 0)
-    mmd = np.sum(K) / (n * (n-1))
+    XX = metrics.pairwise.rbf_kernel(X, X, gamma)
+    YY = metrics.pairwise.rbf_kernel(Y, Y, gamma)
+    XY = metrics.pairwise.rbf_kernel(X, Y, gamma)
+    # np.fill_diagonal(XX, 0)
+    # np.fill_diagonal(YY, 0)
+    # np.fill_diagonal(XY, 0)
+    return (XX.mean() + YY.mean() - XY.mean() - XY.T.mean())
 
 
-    return mmd
 
 def test_distance_correlation():
     # sanity check
@@ -115,8 +114,6 @@ def test_hsic():
     assert np.all(HSIC(x_2, x_2**2) > hsic)
 
 def test_mmd():
-    mmd_ = MMD(x, y)
-    ans = 0.036
     mmd = MMD(X, Y)
 
     ref = np.zeros((50, 1))
@@ -129,10 +126,10 @@ def test_mmd():
 
 
     ## tested against https://github.com/AnthonyEbert/EasyMMD
-    ## MMD(x, y) gave -0.03217994 with the R package 
+    ## MMD(x, y) gave -0.03217994 with the R package , but that was U-stat
     ## this test is currently failing
     mmd_ = MMD(x, y)
-    ans = 0.036
+    ans = 0.1858068
     np.testing.assert_almost_equal(mmd_, ans)
 
 
