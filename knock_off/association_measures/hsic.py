@@ -11,6 +11,8 @@ def HSIC(X, Y, kernel='gaussian'):
     assert n == ny
     assert dy == 1
 
+    print("#########")
+    print(f"{d=}")
     kernel, kernel_params = get_kernel_function(kernel, nfeats=d)
 
     Ky = center(kernel(Y[:, 0], **kernel_params))
