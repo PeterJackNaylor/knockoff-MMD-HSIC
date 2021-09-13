@@ -43,7 +43,7 @@ process data {
     script:
         py_file = file("${CWD}/src/data/${data_name}.py")
         """
-        python  --n $n --p $p
+        python $py_file --n $n --p $p
         """
 }
 
