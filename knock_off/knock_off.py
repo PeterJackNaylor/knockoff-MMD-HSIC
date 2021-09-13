@@ -191,20 +191,39 @@ def threshold_alpha(Ws, w_indice, alpha):
     features.
 
     """
-    t_max = max(Ws) + 1
 
-    def fraction_3_6(t):
+    ts = np.sort([abs(t) for t in Ws.copy()])
+
+    def fraction_3_6_v(t):
         num = (Ws <= -abs(t)).sum() + 1
         den = max((Ws >= abs(t)).sum(), 1)
-        is_below_alpha = (num / den) <= alpha
-        if is_below_alpha:
-            return abs(t)
-        else:
-            return t_max
+        return num / den
 
-    t_alpha_list = list(map(fraction_3_6, Ws))
-    t_alpha = min(t_alpha_list)
-    indices = [w_indice[i] for i, el in enumerate(Ws) if el >= t_alpha]
-    if t_max == t_alpha:
-        t_alpha = np.inf
+    fdp = list(map(fraction_3_6_v, ts))
+    t_alpha = np.where(np.array(fdp) <= alpha)
+    if t_alpha[0].sum() == 0:
+        # no one selected..
+        t_alpha_min = np.inf
+    else:
+        t_alpha_min = min(ts[t_alpha])
+    indices = [w_indice[i] for i, el in enumerate(Ws) if el >= t_alpha_min]
     return indices, t_alpha
+
+
+    # def fraction_3_6(t):
+    #     num = (Ws <= -abs(t)).sum() + 1
+    #     den = max((Ws >= abs(t)).sum(), 1)
+    #     is_below_alpha = (num / den) <= alpha
+    #     if is_below_alpha:
+    #         return abs(t)
+    #     else:
+    #         return t_max
+    # print(ts)
+    # t_alpha_list_value = list(map(fraction_3_6_v, ts))
+    # print(t_alpha_list_value)
+    # t_alpha_list = list(map(fraction_3_6, ts))
+    # t_alpha = min(t_alpha_list)
+    
+    # if t_max == t_alpha:
+    #     t_alpha = np.inf
+    # return indices, t_alpha

@@ -16,8 +16,6 @@ def screen(X, y, d, am):
     return scores, w_js[0, 0]
 
 
-
-
 def build_knockoff(X, y, am):
     d = X.shape[1]
     X_hat = get_equi_features(X)
@@ -74,7 +72,6 @@ def get_equi_features(X):
     
     Xnew = np.dot(Xstd, np.eye(p) - sigma_inv * sj) + np.dot(U, C)
     return Xnew
-
 
 
 def knock_off_check_parameters(n, p, n1, d):
