@@ -94,7 +94,7 @@ def test_tr_measure():
 
 
 def test_hsic():
-    hsic = HSIC(X, Y)
+    hsic = HSIC(X, Y, sigma=50)
 
     ref = np.zeros((50, 1))
     for i in range(50):
@@ -106,7 +106,7 @@ def test_hsic():
     np.testing.assert_almost_equal(ref, hsic)
 
     # I got 0.09954543 with a R method..
-    hsic_ = HSIC(x, y)
+    hsic_ = HSIC(x, y, sigma=1)
     ans = 0.09528812
     np.testing.assert_almost_equal(ans, hsic_)
 

@@ -3,7 +3,7 @@ import numpy as np
 from .kernel_tools import get_kernel_function
 
 
-def MMD(X, Y, kernel='gaussian'):
+def MMD(X, Y, kernel='gaussian', sigma=None):
     """ 
     V-statistic of MMD, to have the U- uncomment the np.fill_diagonal term
     """
@@ -13,7 +13,7 @@ def MMD(X, Y, kernel='gaussian'):
     assert n == ny
     assert nd == 1
     
-    kernel, kernel_params = get_kernel_function(kernel, nfeats=d)
+    kernel, kernel_params = get_kernel_function(kernel, nfeats=sigma)
 
     Ky = kernel(Y[:, 0], **kernel_params)
 
