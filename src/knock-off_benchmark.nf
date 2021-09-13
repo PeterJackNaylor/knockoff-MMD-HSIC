@@ -8,7 +8,7 @@ params.repeats = 1
 
 if (params.full == 'true'){
     DATASETS = ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]
-    ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "MMD"]
+    ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "pearson_correlation"] //"MMD"
     sample_size = [100, 500]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300]
@@ -41,8 +41,9 @@ process data {
     output:
         set val("DATASET=${data_name};n=${n};p=${p};rep=${rep}"), file("Xy.npz") into XY
     script:
+        py_file = file("${CWD}/src/data/${data_name}.py")
         """
-        python ${CWD}/src/data/${data_name}.py --n $n --p $p
+        python  --n $n --p $p
         """
 }
 
@@ -59,11 +60,12 @@ process knock_off {
         file("fdp_*.csv")
     script:
         feature_size = PARAMS.split(';')[1].split('=')[1]
+        py_file = file("${CWD}/src/model/knock-off.py")
         """
-        python ${CWD}/src/model/knock-off.py --alpha ${alpha / 10} \\
-                                            --t $T --n_1 0.3 \\
-                                            --d ${associated_d[feature_size]} \\
-                                            --param "$PARAMS"
+        python $py_file --alpha ${alpha / 10} \\
+                        --t $T --n_1 0.3 \\
+                        --d ${associated_d[feature_size]} \\
+                        --param "$PARAMS"
         """
 }
 
@@ -79,7 +81,8 @@ process plots_and_simulation_results {
     output:
         set file("simulation_plot.html"), file("$concatenated_exp")
     script:
+        py_file = file("${CWD}/src/results/simulation.py")
         """
-        python ${CWD}/src/results/simulation.py --csv_file $concatenated_exp
+        python $py_file --csv_file $concatenated_exp
         """
 }
