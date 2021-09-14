@@ -11,7 +11,13 @@ def load_npz(path):
     y = data['Y']
     return X, y
 
-def false_discovery_rate(model):
+def false_discovery_rate(model, dataset="model_2a"):
+    if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
+        correct_covariates = [0, 1, 2, 3]
+    elif dataset in ["model_4a", "model_4b"]:
+        correct_covariates = list(range(10))
+    else:
+        print("DATASET name not recognised")
 
     if model.n_features_out_ == 0:
         print("No feature selection process happened")
@@ -78,7 +84,7 @@ def main():
 
     ## Record fdr and report parameters
     t_s, fdp = false_discovery_proportion(model)
-    fdr = false_discovery_rate(model)
+    fdr = false_discovery_rate(model, dataset=opt.param_d["DATASET"])
     opt.param_d["fdr"] = fdr
     print(f"False discovery rate = {fdr}")
     DataFrame(opt.param_d, index=[0]).to_csv("fdr.csv", index=False)
