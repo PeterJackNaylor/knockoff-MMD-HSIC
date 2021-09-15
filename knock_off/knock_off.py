@@ -88,15 +88,29 @@ class KnockOff(BaseEstimator, TransformerMixin):
         # construct knock off variables
         print("Starting knockoff step")
         wjs = build_knockoff(X2[:, A_d_hat], y2, self.get_association_measure())
-        self.alpha_indices_, self.t_alpha_ = threshold_alpha(wjs, A_d_hat, self.alpha)
         self.wjs_ = wjs
+        self.A_d_hat_ = A_d_hat
 
-        if len(self.alpha_indices_):
-            print("selected features: ", self.alpha_indices_)
+        self.alpha_indices_, self.t_alpha_, self.n_features_out_ = self.alpha_threshold(self.alpha)
+
+        return self
+
+    def alpha_threshold(self, alpha):
+        """
+        Computes the selected features with respect to alpha.
+
+        Parameters
+        ----------
+        alpha : threshold value to use for post inference selection.
+
+        """
+        alpha_indices_, t_alpha_ = threshold_alpha(self.wjs_, self.A_d_hat_, alpha)
+        if len(alpha_indices_):
+            print("selected features: ", alpha_indices_)
         else:
             print("No features were selected, returning empty set.")
-        self.n_features_out_ = len(self.alpha_indices_)
-        return self
+        n_features_out_ = len(alpha_indices_)
+        return alpha_indices_, t_alpha_, n_features_out_
 
     def transform(self, X, y=None):
         """Transforms an input dataset X into the reduce set of features
