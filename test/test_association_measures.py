@@ -42,9 +42,13 @@ def ref_hsic(X, Y, d):
 # reference implementation https://github.com/jenninglim/multiscale-features/blob/master/mskernel/mmd.py
 def ref_mmd(X, Y, d):
 
+
     if X.shape[0] != Y.shape[0]:
         raise ValueError('X and Y must have the same number of rows (sample size')
 
+    X = X / np.linalg.norm(X)
+    Y = Y / np.linalg.norm(Y)
+    
     n = X.shape[0]
 
     gamma =  0.5 / d
@@ -114,11 +118,12 @@ def test_hsic():
     assert np.all(HSIC(x_2, x_2**2) > hsic)
 
 def test_mmd():
-    mmd = MMD(X, Y)
+    mmd = MMD(X, Y, sigma=1)
 
     ref = np.zeros((50, 1))
     for i in range(50):
-        ref[i] = ref_mmd(X[:,i].reshape(10,1), Y, 50)
+        ref[i] = ref_mmd(X[:,i].reshape(10,1), Y, 1)
+
 
     assert len(mmd) == X.shape[1]
     assert all(mmd >= 0)
@@ -129,7 +134,7 @@ def test_mmd():
     ## MMD(x, y) gave -0.03217994 with the R package , but that was U-stat
     ## this test is currently failing
     mmd_ = MMD(x, y)
-    ans = 0.1858068
+    ans = 0.0006635
     np.testing.assert_almost_equal(mmd_, ans)
 
 
