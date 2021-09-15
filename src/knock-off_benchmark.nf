@@ -49,6 +49,7 @@ process data {
 
 
 process knock_off {
+    errorStrategy 'ignore'
 
     input:
         set PARAMS, file(Xy) from XY
