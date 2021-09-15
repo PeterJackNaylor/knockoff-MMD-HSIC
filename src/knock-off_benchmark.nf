@@ -49,14 +49,12 @@ process data {
 
 
 process knock_off {
-    publishDir "./outputs/vanilla/simulations_results/fdp", pattern: "fdp_*.csv", mode: 'copy', overwrite: 'true'
 
     input:
         set PARAMS, file(Xy) from XY
         each T from ASSOCIATION_MEASURES
     output:
         file("fdr.csv") into FDR
-        file("fdp_*.csv")
     script:
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
