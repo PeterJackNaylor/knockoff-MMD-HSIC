@@ -9,10 +9,10 @@ params.repeats = 1
 if (params.full == 'true'){
     DATASETS = ["model_0", "model_2a", "model_2b", "model_2c", "model_2d", "model_4a", "model_4b"]
     ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "pearson_correlation", "MMD"]
-    sample_size = [100, 500]//, 1000]
+    sample_size = [100, 500, 1000]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
-    feature_size = [5e2, 5e3]
+    feature_size = [100, 5e2, 5e3]
 }
 else {
     DATASETS = ["model_0"]
@@ -35,6 +35,8 @@ process data {
         each rep from 0..(params.repeats - 1)
     output:
         set val("DATASET=${data_name};n=${n};p=${p};rep=${rep}"), file("Xy.npz") into XY
+    when:
+        (n < p + 1) || ((n == 500) && (p == 100))
     script:
         py_file = file("${CWD}/src/data/${data_name}.py")
         """
