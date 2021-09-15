@@ -9,12 +9,10 @@ params.repeats = 1
 if (params.full == 'true'){
     DATASETS = ["model_0", "model_2a", "model_2b", "model_2c", "model_2d", "model_4a", "model_4b"]
     ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "pearson_correlation", "MMD"]
-    sample_size = [100, 500, 1000]
+    sample_size = [100, 500]//, 1000]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
     feature_size = [5e2, 5e3]
-    ALPHA_MIN = 1
-    ALPHA_MAX = 9
 }
 else {
     DATASETS = ["model_0"]
@@ -23,9 +21,6 @@ else {
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '200': 90]
     feature_size = [5e2]
-    ALPHA_MIN = 4
-    ALPHA_MAX = 4
-
 }
 
 
