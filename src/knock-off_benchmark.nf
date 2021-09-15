@@ -54,7 +54,6 @@ process knock_off {
     input:
         set PARAMS, file(Xy) from XY
         each T from ASSOCIATION_MEASURES
-        each alpha from ALPHA_MIN..ALPHA_MAX
     output:
         file("fdr.csv") into FDR
         file("fdp_*.csv")
@@ -62,8 +61,7 @@ process knock_off {
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
         """
-        python $py_file --alpha ${alpha / 10} \\
-                        --t $T --n_1 0.3 \\
+        python $py_file --t $T --n_1 0.3 \\
                         --d ${associated_d[feature_size]} \\
                         --param "$PARAMS"
         """

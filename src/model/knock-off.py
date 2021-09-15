@@ -1,9 +1,9 @@
 
 import argparse
 import numpy as np
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
-from knock_off import KnockOff
+from knock_off import KnockOff, association_measures
 
 def load_npz(path):
     data = np.load(path)
@@ -11,7 +11,7 @@ def load_npz(path):
     y = data['Y']
     return X, y
 
-def false_discovery_rate(model, dataset="model_2a"):
+def false_discovery_rate(selected_features, dataset="model_2a"):
     if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
         correct_covariates = [0, 1, 2, 3]
     elif dataset in ["model_4a", "model_4b"]:
@@ -19,11 +19,10 @@ def false_discovery_rate(model, dataset="model_2a"):
     else:
         print("DATASET name not recognised")
 
-    if model.n_features_out_ == 0:
+    if len(selected_features) == 0:
         print("No feature selection process happened")
         return -1
     else:
-        selected_features = model.alpha_indices_
         n_selected = len(selected_features)
         correct_covariates = [0, 1, 2, 3]
         intersection = list(set(selected_features) & set(correct_covariates))
@@ -36,13 +35,12 @@ def f_fdp(t, w):
     den = max((w >= t).sum(), 1)
     return num / den 
 
-def false_discovery_proportion(model):
+def false_discovery_proportion(n_features_out, wjs):
 
-    if model.n_features_out_ == 0:
+    if n_features_out == 0:
         print("No feature selection process happened")
         return [None], [None]
     else:
-        wjs = model.wjs_
         t_s = wjs.copy()
         t_s = [abs(w) for w in t_s]
         t_s.sort()
@@ -66,7 +64,7 @@ def options():
         args.param_d["alpha"] = args.alpha
         args.param_d["n_1"] = args.n_1
         args.param_d["d"] = args.d
-        args.param += f";AM={args.t};alpha={args.alpha};n_1={args.n_1};d={args.d}"
+        args.param += f";AM={args.t};n_1={args.n_1};d={args.d}"
     return args
 
 def main():
@@ -77,20 +75,29 @@ def main():
     print("Data loaded")
 
     ## Perform knock off procedure
-    model = KnockOff(opt.alpha, measure_stat=opt.t)
+    model = KnockOff(0.1, measure_stat=opt.t)
     print("Starting fit process")
     model.fit(X, y, n1=opt.n_1, d=opt.d)
     print("Fit process finished")
 
-    ## Record fdr and report parameters
-    t_s, fdp = false_discovery_proportion(model)
-    fdr = false_discovery_rate(model, dataset=opt.param_d["DATASET"])
-    opt.param_d["fdr"] = fdr
-    print(f"False discovery rate = {fdr}")
-    DataFrame(opt.param_d, index=[0]).to_csv("fdr.csv", index=False)
+    opt.param_d["fdr"] = 0
 
-    params = opt.param.replace(";", "--").replace(".", ",")
-    DataFrame({"t": t_s, "fdp": fdp}).to_csv(f"fdp_{params}.csv", index=False)
+    pd_fdr = DataFrame(columns=opt.param_d.keys(), index=list(range(10, 95, 5)))
+
+    for alpha in range(10, 95, 5):
+        alpha_ind, t_alpha, n_feat = model.alpha_threshold(alpha / 100)
+        t_s, fdp = false_discovery_proportion(n_feat, model.wjs_)
+        fdr = false_discovery_rate(alpha_ind, dataset=opt.param_d["DATASET"])
+        print(f"False discovery rate = {fdr} for alpha = {alpha}")
+        opt.param_d["fdr"] = fdr
+        opt.param_d["alpha"] = alpha / 100
+        pd_fdr.loc[alpha] = Series(opt.param_d)
+    
+    
+    pd_fdr.to_csv("fdr.csv", index=False)
+    ## Record fdr and report parameters
+    opt.param_d["fdr"] = fdr
+    DataFrame(opt.param_d, index=[0]).to_csv("fdr.csv", index=False)
 
 if __name__ == "__main__":
     main()
