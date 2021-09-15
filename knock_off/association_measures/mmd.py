@@ -1,7 +1,6 @@
 import numpy as np
 
-from .kernel_tools import get_kernel_function, compute_distance_matrix
-
+from .kernel_tools import get_kernel_function
 
 def MMD(X, Y, kernel='gaussian', sigma=0.01):
     """ 
