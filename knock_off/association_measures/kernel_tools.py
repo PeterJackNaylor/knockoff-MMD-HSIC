@@ -13,9 +13,7 @@ def get_kernel_function(name, nfeats=1):
 
     return kernel, kernel_params
 
-
-def kernel_gaussian(x1, x2=None, sigma=None):
-
+def compute_distance_matrix(x1, x2=None):
     if len(x1.shape) == 1:
         x1 = np.expand_dims(x1, axis=1)
 
@@ -30,9 +28,14 @@ def kernel_gaussian(x1, x2=None, sigma=None):
         x2_2 = x1_2
 
     dist_2 = x2_2 + x1_2.T - 2 * np.dot(x2, x1.T)
+    return dist_2
+
+def kernel_gaussian(x1, x2=None, sigma=None):
+
+    dist_2 = compute_distance_matrix(x1, x2)
     if sigma is None:
         sigma = np.sqrt(np.var(dist_2))
-    K = np.exp(-dist_2 / (2 * sigma))
+    K = np.exp(- 0.5 * dist_2 / sigma)
     return K
 
 
