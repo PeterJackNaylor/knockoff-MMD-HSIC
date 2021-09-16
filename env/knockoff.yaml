@@ -23,6 +23,11 @@ dependencies:
   - wheel=0.37.0=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7b6447c_3
+  # r packages
+  - r
+  - r-plotly
+  - r-tidyverse
+  - r-htmlwidgets
   - pip:
     - attrs==21.2.0
     - dcor==0.5.3
