@@ -21,14 +21,18 @@ def top_k(wjs, S):
             break
     return i + 1
 
-def minimum_model_size_including_active(model, dataset="model_2a"):
+def determine_covariate(dataset):
     if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
         correct_covariates = [0, 1, 2, 3]
-    elif dataset in ["model_4a", "model_4b"]:
+    elif dataset in ["model_4a", "model_4b", "model_5a", "model_5b"]:
         correct_covariates = list(range(10))
     else:
         print("DATASET name not recognised")
-    
+    return correct_covariates
+
+def minimum_model_size_including_active(model, dataset="model_2a"):
+
+    correct_covariates = determine_covariate(dataset)
     screening_score = model.screen_features_
 
     k0 = top_k(screening_score, correct_covariates)
@@ -36,12 +40,8 @@ def minimum_model_size_including_active(model, dataset="model_2a"):
 
 
 def false_discovery_rate(selected_features, dataset="model_2a"):
-    if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
-        correct_covariates = [0, 1, 2, 3]
-    elif dataset in ["model_4a", "model_4b"]:
-        correct_covariates = list(range(10))
-    else:
-        print("DATASET name not recognised")
+
+    correct_covariates = determine_covariate(dataset)
 
     if len(selected_features) == 0:
         print("No feature selection process happened")
