@@ -7,8 +7,9 @@ def formula(x, n=None):
         n = x.shape[0]
 
     # eps = np.random.normal(loc=0.0, scale=1.0, size=n)
-    
-    y = np.random.poisson(lam=np.exp(x[:, 0:10].sum(axis=1)), size=n).astype(float)
+    t = np.exp(x[:, 0:10].sum(axis=1))
+
+    y = ((t / (t + 1)) > 0.5).astype(float)
     
     return y 
 

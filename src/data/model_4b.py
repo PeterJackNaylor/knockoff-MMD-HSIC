@@ -8,7 +8,7 @@ def formula(x, n=None):
 
     eps = np.random.standard_t(2, size=n)
     
-    y = x[:, 0:10].sum() + eps
+    y = x[:, 0:10].sum(axis=1) + eps
     
     return y 
 

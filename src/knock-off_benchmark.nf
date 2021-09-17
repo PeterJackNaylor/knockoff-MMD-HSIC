@@ -7,7 +7,7 @@ params.full = 'true'
 params.repeats = 1
 
 if (params.full == 'true'){
-    DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a"] //"model_2c", "model_2d"
+    DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a", "model_5b"] //"model_2c", "model_2d"
     ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "pearson_correlation", "MMD"]
     sample_size = [100, 500, 1000]
     // d depends mostly on n
