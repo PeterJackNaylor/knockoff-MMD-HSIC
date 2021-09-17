@@ -7,7 +7,7 @@ params.full = 'true'
 params.repeats = 1
 
 if (params.full == 'true'){
-    DATASETS = ["model_0", "model_2a", "model_2b", "model_2c", "model_2d", "model_4a", "model_4b"]
+    DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a"] //"model_2c", "model_2d"
     ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "pearson_correlation", "MMD"]
     sample_size = [100, 500, 1000]
     // d depends mostly on n
@@ -73,7 +73,7 @@ process plots_and_simulation_results {
     input:
         file concatenated_exp from ALL_FDR
     output:
-        set file("empty_set.html"), file("fdr_control.html"), file("$concatenated_exp")
+        set file("empty_set.html"), file("*_fdr_control.html"), file("$concatenated_exp")
     script:
         r_file = file("${CWD}/src/results/benchmark_plots.R")
         """

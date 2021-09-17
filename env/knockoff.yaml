@@ -51,4 +51,3 @@ dependencies:
     - tenacity==8.0.1
     - threadpoolctl==2.2.0
     - toml==0.10.2
-prefix: /home/pnaylor/miniconda3/envs/knockoff

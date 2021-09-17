@@ -13,25 +13,31 @@ if (length(args)==0) {
 
 fdr <- read_csv(fdr_csv)
 
-p_fdr_control <- fdr %>%
-    mutate(fdr = ifelse(fdr == -1, 0, fdr),
-           n = paste0('n = ', n),
-           p = paste0('p = ', p)) %>%
-    group_by(AM, n, p, alpha) %>%
-    summarize(se = 1.96 * sd(fdr) / sqrt(n()),
-              fdr = mean(fdr)) %>%
-    mutate(nxp = paste(n, p)) %>%
-    ggplot(aes(alpha, fdr, color = AM)) +
-        geom_abline(slope = 1) +
-        geom_errorbar(aes(ymin = fdr - se, ymax = fdr + se), width = .02) +
-        geom_point() +
-        geom_line() +
-        facet_wrap(. ~ nxp) +
-        labs(color = 'Algorithm', y = 'FDR') +
-        theme(legend.position = 'bottom',
-              text = element_text(size = 25))
+datasets <- unique(fdr$DATASET)
 
-saveWidget(ggplotly(p_fdr_control), file = "fdr_control.html")
+for (val in datasets)
+{
+  p_fdr_control <- fdr %>%
+      filter(DATASET == val) %>%
+      mutate(fdr = ifelse(fdr == -1, 0, fdr),
+            n = paste0('n = ', n),
+            p = paste0('p = ', p)) %>%
+      group_by(AM, n, p, alpha) %>%
+      summarize(se = 1.96 * sd(fdr) / sqrt(n()),
+                fdr = mean(fdr)) %>%
+      mutate(nxp = paste(n, p)) %>%
+      ggplot(aes(alpha, fdr, color = AM)) +
+          geom_abline(slope = 1) +
+          geom_errorbar(aes(ymin = fdr - se, ymax = fdr + se), width = .02) +
+          geom_point() +
+          geom_line() +
+          facet_wrap(. ~ nxp) +
+          labs(color = 'Algorithm', y = 'FDR') +
+          theme(legend.position = 'bottom',
+                text = element_text(size = 25))
+  saveWidget(ggplotly(p_fdr_control), file = paste0(val, "_fdr_controls.html"))
+}
+
 
 p_empty_sets <- fdr %>%
     group_by(AM, alpha) %>%

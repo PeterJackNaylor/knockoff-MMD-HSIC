@@ -11,6 +11,30 @@ def load_npz(path):
     y = data['Y']
     return X, y
 
+def top_k(wjs, S):
+    S = set(S)
+    n = len(wjs)
+    sorted_features = wjs.argsort()[-n:][::-1]
+
+    for i in range(len(S), n, 1):
+        if set(S).issubset(sorted_features[:i]):
+            break
+    return i + 1
+
+def minimum_model_size_including_active(model, dataset="model_2a"):
+    if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
+        correct_covariates = [0, 1, 2, 3]
+    elif dataset in ["model_4a", "model_4b"]:
+        correct_covariates = list(range(10))
+    else:
+        print("DATASET name not recognised")
+    
+    screening_score = model.screen_features_
+
+    k0 = top_k(screening_score, correct_covariates)
+    return k0
+
+
 def false_discovery_rate(selected_features, dataset="model_2a"):
     if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
         correct_covariates = [0, 1, 2, 3]
@@ -79,6 +103,10 @@ def main():
     model.fit(X, y, n1=opt.n_1, d=opt.d)
     print("Fit process finished")
 
+    # Get minimum model size containing true features
+    k0 = minimum_model_size_including_active(model, dataset=opt.param_d["DATASET"])
+    opt.param_d["k0"] = k0
+        
     opt.param_d["fdr"] = 0
 
     pd_fdr = DataFrame(columns=opt.param_d.keys(), index=list(range(10, 95, 5)))

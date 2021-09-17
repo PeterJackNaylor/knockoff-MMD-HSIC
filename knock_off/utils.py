@@ -3,14 +3,17 @@ import numpy as np
 from scipy.sparse.linalg import eigsh
 
 def screen(X, y, d, am):
-    
+    """
+    Returns the indices of the top d features and
+    the unsorted list of scores on the features.
+    """
     def w_j(x_j):
         x_j = np.expand_dims(x_j.copy(), axis=1)
         return am(x_j, y)
 
     w_js = np.apply_along_axis(w_j, 0, X)
     scores = w_js[0, 0].argsort()[-d:][::-1]
-    return scores
+    return scores, w_js[0, 0]
 
 
 

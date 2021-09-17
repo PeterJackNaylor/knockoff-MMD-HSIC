@@ -76,13 +76,16 @@ class KnockOff(BaseEstimator, TransformerMixin):
             print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
             X2, y2 = X[set_two, :], y[set_two]
-            A_d_hat = screen(X1, y1, d, self.get_association_measure())
+            A_d_hat, screened_features = screen(X1, y1, d, self.get_association_measure())
 
         else:
             print("No screening")
             X2 = X
             y2 = y
             A_d_hat = np.arange(p)
+            _, screened_features = screen(X, y, p, self.get_association_measure())
+
+        self.screen_features_ = screened_features
 
         # knock off step
         # construct knock off variables
