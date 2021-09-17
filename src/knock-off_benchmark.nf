@@ -75,8 +75,8 @@ process plots_and_simulation_results {
     output:
         set file("simulation_plot.html"), file("$concatenated_exp")
     script:
-        py_file = file("${CWD}/src/results/simulation.py")
+        r_file = file("${CWD}/src/results/benchmark_plots.R")
         """
-        python $py_file --csv_file $concatenated_exp
+        Rscript $r_file $concatenated_exp
         """
 }
