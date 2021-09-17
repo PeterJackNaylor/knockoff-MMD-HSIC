@@ -73,7 +73,7 @@ process plots_and_simulation_results {
     input:
         file concatenated_exp from ALL_FDR
     output:
-        set file("simulation_plot.html"), file("$concatenated_exp")
+        set file("empty_set.html"), file("fdr_control.html"), file("$concatenated_exp")
     script:
         r_file = file("${CWD}/src/results/benchmark_plots.R")
         """
