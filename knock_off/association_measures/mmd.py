@@ -1,6 +1,10 @@
 import numpy as np
 
-from .kernel_tools import get_kernel_function
+from .kernel_tools import get_kernel_function, compute_distance_matrix
+
+def calibrate_sigma_mmd(x, y):
+    flat = np.concatenate([x.flatten(), y.flatten()], axis=0)
+    return np.median(compute_distance_matrix(flat))
 
 def MMD(X, Y, kernel='gaussian', sigma=0.01):
     """ 
@@ -22,6 +26,7 @@ def MMD(X, Y, kernel='gaussian', sigma=0.01):
 
     for i in range(d):
         X_norm = X[:,i:i+1] / np.linalg.norm(X[:,i:i+1])
+        kernel_params['sigma'] = calibrate_sigma_mmd(X_norm, Y)
         Kx = kernel(X_norm, **kernel_params)
         Kxy = kernel(X_norm, Y, **kernel_params)
 
