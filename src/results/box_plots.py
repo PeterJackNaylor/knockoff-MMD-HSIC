@@ -49,7 +49,7 @@ def main():
     table = pd.read_csv(opt.csv_file)
     # remove those which didn't select anything
     table.loc[table["fdr"] == -1, "fdr"] = 0
-    table = table.loc[table["AM"] != "MMD"]
+
     table = table.loc[table["alpha"] == 0.5]
     table = table.loc[table['DATASET'] != 0]
     datasets = np.unique(table['DATASET'])
@@ -109,7 +109,7 @@ def main():
             x=0.75,
             y=0.80
         ))
-        fig.write_html(f"without_mmd/{data}_minimum_model_size--box_plots.html")
+        fig.write_html(f"{data}_minimum_model_size--box_plots.html")
 
 if __name__ == "__main__":
     main()
