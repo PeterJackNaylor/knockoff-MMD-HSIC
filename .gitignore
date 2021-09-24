@@ -131,3 +131,7 @@ work/
 .nextflow.*
 env/container_img.sif
 outputs
+*.npy
+*.png 
+*-ubyte
+*ubyte.gz
