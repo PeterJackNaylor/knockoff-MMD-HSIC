@@ -51,8 +51,8 @@ def MMD(X, Y, kernel='gaussian', sigma=None):
     categories = np.unique(Y)
     assert categories.shape[0] == 2
 
-    Y0_idx = np.where(Y == categories[0])
-    Y1_idx = np.array(set(np.arange(n)) - set(Y0_idx))
+    Y0_idx = np.where(Y == categories[0])[0]
+    Y1_idx = np.array(list(set(np.arange(n)) - set(Y0_idx)))
 
     n0 = Y0_idx.shape[0]
     n1 = Y1_idx.shape[0]
@@ -65,8 +65,16 @@ def MMD(X, Y, kernel='gaussian', sigma=None):
     X0 = X[Y0_idx,]
     X1 = X[Y1_idx,]
 
-    return MMD_v(X0, X1, kernel='gaussian', input_norm=True, normed=False, sigma=sigma)
-
+    mmd_stats = np.zeros((d, 1))
+    for k in range(d):
+        mmd_stats[k] = MMD_v(
+            X0[:,k:k+1], X1[:,k:k+1],
+            kernel='gaussian',
+            input_norm=True,
+            normed=False,
+            sigma=sigma)[0,0]
+    
+    return mmd_stats
 
 def MMD_norm(X, Y, kernel='gaussian', sigma=None):
     """ 
@@ -97,7 +105,16 @@ def MMD_norm(X, Y, kernel='gaussian', sigma=None):
     X0 = X[Y0_idx,]
     X1 = X[Y1_idx,]
 
-    return MMD_v(X0, X1, kernel='gaussian', input_norm=True, normed=True, sigma=sigma)
+    mmd_stats = np.zeros((d, 1))
+    
+    for k in range(d):
+        mmd_stats[k] = MMD_v(
+            X0[:,k:k+1], X1[:,k:k+1],
+            kernel='gaussian',
+            input_norm=True,
+            normed=True,
+            sigma=sigma)[0,0]
+    return mmd_stats
 
 
 def MMD_v(X, Y, kernel='gaussian', input_norm=True, normed=False, sigma=None):
