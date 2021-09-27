@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-
+from colors import color_dictionnary
 
 def options():
     # options
@@ -17,12 +17,7 @@ def options():
 
 row_dic = {100: 1, 500: 2, 5000: 3}
 col_dic = {100: 1, 500: 2, 1000: 3}
-colors = {"MMD": "rgb(0, 186, 56)",
-        "TR": "rgb(245, 100, 227)",
-        "HSIC": "rgb(183, 159, 0)",
-        "pearson_correlation": "rgb(97, 156, 255)",
-        "PC": "rgb(0, 191, 196)",
-        "DC": "rgb(248, 118, 109)"}
+
 
 titles = tuple(f"<b> {text} </b>" if text != "" else text for text in \
         ["n = 100; p = 100", "n = 500; p = 100",  "",
@@ -43,6 +38,7 @@ def main():
     table = pd.read_csv(opt.csv_file)
     # remove those which didn't select anything
     table.loc[table["fdr"] == -1, "fdr"] = 0
+    table = table.dropna()
     table = table.loc[table['DATASET'] != 0]
     datasets = np.unique(table['DATASET'])
     for data in list(datasets):
@@ -57,12 +53,8 @@ def main():
                             subplot_titles=titles,
                             x_title="<i>&#945;</i>",#, 'font': {'size': 0}},
                             y_title='<i>FDR</i>')
-        legend = {"MMD": True,
-                    "TR": True,
-                    "HSIC": True,
-                    "pearson_correlation": True,
-                    "PC": True,
-                    "DC": True}
+        legend = {el: True for el in color_dictionnary.keys()}
+
         for g_n, group in groups:
             
             alpha_group = group.groupby(['alpha'])
@@ -83,7 +75,7 @@ def main():
                 error_y=dict(
                     array=err),
                 marker=dict(
-                    color=colors[g_n[2]]
+                    color=color_dictionnary[g_n[2]]
                 ),
                 showlegend=legend[g_n[2]])
             if legend[g_n[2]]:

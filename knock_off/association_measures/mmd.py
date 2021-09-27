@@ -91,8 +91,8 @@ def MMD_norm(X, Y, kernel='gaussian', sigma=None):
     categories = np.unique(Y)
     assert categories.shape[0] == 2
 
-    Y0_idx = np.where(Y == categories[0])
-    Y1_idx = np.array(set(np.arange(n)) - set(Y0_idx))
+    Y0_idx = np.where(Y == categories[0])[0]
+    Y1_idx = np.array(list(set(np.arange(n)) - set(Y0_idx)))
 
     n0 = Y0_idx.shape[0]
     n1 = Y1_idx.shape[0]
