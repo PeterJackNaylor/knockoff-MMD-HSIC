@@ -12,6 +12,16 @@ def screen(X, y, d, am):
         return am(x_j, y)
 
     w_js = np.apply_along_axis(w_j, 0, X)
+
+    valid_features = w_js.shape[2] - np.sum(np.isnan(w_js))
+    if valid_features < d:
+        print('the requested number of features ({}) could not be screened; \
+only {} features were screened instead'.format(d, valid_features))
+        d = valid_features
+
+    # nans are at the end when sorting
+    w_js[np.isnan(w_js)] = -float('inf')
+
     scores = w_js[0, 0].argsort()[-d:][::-1]
     return scores, w_js[0, 0]
 
