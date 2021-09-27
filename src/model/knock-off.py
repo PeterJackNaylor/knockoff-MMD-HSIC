@@ -109,7 +109,7 @@ def main():
         
     opt.param_d["fdr"] = 0
 
-    pd_fdr = DataFrame(columns=opt.param_d.keys(), index=list(range(10, 95, 5)))
+    pd_fdr = DataFrame(columns=opt.param_d.keys(), index=list(np.arange(0.5, 0.95, .05)))
 
     for alpha in range(10, 95, 5):
         alpha = alpha / 100

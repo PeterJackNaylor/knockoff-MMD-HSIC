@@ -15,8 +15,8 @@ if (params.full == 'true'){
     feature_size = [100, 5e2, 5e3]
 }
 else {
-    DATASETS = ["model_0"]
-    ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "MMD"]
+    DATASETS = ["model_0", "model_5b"]
+    ASSOCIATION_MEASURES = ["HSIC_norm", "MMD", "MMD_norm"]
     sample_size = [200]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '200': 90]
@@ -55,9 +55,8 @@ process knock_off {
         file("fdr.csv") into FDR
     when:
         // MMD needs binary data
-        (!(T in ["MMD", "MMD_norm"])) || (data == "model_5b")
+        (PARAMS.split(';')[0].split('=')[1] == "model_5b") || (!(T in ["MMD", "MMD_norm"]))
     script:
-        data = PARAMS.split(';')[0].split('=')[1]
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
         """
