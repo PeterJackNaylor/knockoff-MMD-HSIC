@@ -55,7 +55,7 @@ process knock_off {
         file("fdr.csv") into FDR
     when:
         // MMD needs binary data
-        (!(T in ["MMD", "MMD_norm"])) || (data != "model_5b")
+        (!(T in ["MMD", "MMD_norm"])) || (data == "model_5b")
     script:
         data = PARAMS.split(';')[0].split('=')[1]
         feature_size = PARAMS.split(';')[1].split('=')[1]
