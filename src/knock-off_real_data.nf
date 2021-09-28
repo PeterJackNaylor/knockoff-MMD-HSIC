@@ -3,13 +3,14 @@
 // very similar to benchmark but with real data, therefor/
 // It may need train/test split if we need to check the prediciton.
 params.repeats = 1
-params.splits = 3
-ASSOCIATION_MEASURES = ["DC", "HSIC", "MMD", "PC", "TR"]
+params.splits = 8
+ASSOCIATION_MEASURES = ["DC", "HSIC", "MMD", "PC", "TR", "pearson_correlation"]
 CWD = System.getProperty("user.dir")
 DATASETS = ['MNIST.py']
 
 
 process data {
+
     tag "DATASET=${data_name}"
 
     input:
@@ -24,6 +25,7 @@ process data {
 }
 
 process split_data {
+
     tag "${PARAMS};fold=${I}"
 
     input:
@@ -40,13 +42,14 @@ process split_data {
 
 process knock_off {
 
+    tag "AM=${T};${PARAMS}"
     errorStrategy 'ignore'
     
     input:
         set PARAMS, file(Xy_train), file(Xy_test) from splits
         each T from ASSOCIATION_MEASURES
     output:
-        set PARAMS, file(Xy_train), file(Xy_test), file("fdr.csv") into selected_features
+        set val("AM=${T};${PARAMS}"), file(Xy_train), file(Xy_test), file("fdr.csv") into selected_features
     script:
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
@@ -74,6 +77,8 @@ ACCURACIES.collectFile(skip: 1, keepHeader: true)
    .set { ALL_ACCURACIES }
    
 process output {
+    
+    publishDir "./outputs/real_world/mnist", mode: 'copy', overwrite: 'true'
 
     input:
         file concatenated_exp from ALL_ACCURACIES
