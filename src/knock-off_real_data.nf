@@ -59,7 +59,7 @@ process knock_off {
 }
 
 
-process classifier {
+process classify {
 
     input:
         set PARAMS, file(Xy_train), file(Xy_test), file(FEATURES) from selected_features
@@ -73,14 +73,14 @@ process classifier {
 ACCURACIES.collectFile(skip: 1, keepHeader: true)
    .set { ALL_ACCURACIES }
    
-process plots_and_simulation_results {
+process output {
 
     input:
         file concatenated_exp from ALL_ACCURACIES
     output:
-        file "accuracies.csv"
+        file "scores.csv"
     script:
         """
-        cp $concatenated_exp accuracies.csv
+        cp $concatenated_exp scores.csv
         """
 }

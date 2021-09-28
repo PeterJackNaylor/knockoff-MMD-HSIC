@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import GridSearchCV
 
 def load_npz(path):
@@ -10,6 +10,18 @@ def load_npz(path):
     X = data['X']
     y = data['Y']
     return X,y
+
+def quality_scores(y_true, y_pred):
+
+    accuracy = accuracy_score(y_true, y_pred)
+
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    sensitivity = tp / (tp+fn)
+    specificity = tn / (tn+fp)
+    
+    return {'accuracy': accuracy,
+            'sensitivity': sensitivity, 
+            'specificity': specificity}
 
 X_train, y_train = load_npz("${Xy_train}")
 X_test, y_test = load_npz("${Xy_test}")
@@ -26,11 +38,13 @@ param_grid = {
     'criterion' :['gini', 'entropy']
 }
 
-accuracies = []
+scores = []
 
 for alpha, features in zip(df.alpha, selected_features):
     if features == ['nan']:
-        accuracies.append(None)
+        scores.append({'accuracy': None,
+                       'sensitivity': None, 
+                       'specificity': None})
         continue
 
     features = [ int(x) for x in features ]
@@ -42,15 +56,19 @@ for alpha, features in zip(df.alpha, selected_features):
 
     y_pred = cv_clf.predict(X_test_alpha)
     
-    accuracy = accuracy_score(y_test, y_pred)
-    accuracies.append(accuracy)
+    score = quality_scores(y_test, y_pred)
+    scores.append(score)
 
 data_out = {'DATASET': df.DATASET,
             'fold': df.fold,
             'AM': df.AM,
             'alpha': df.alpha,
             'features': df.features,
-            'accuracy': accuracies}
+            'accuracy': [ x['accuracy'] for x in scores ],
+            'sensitivity': [ x['sensitivity'] for x in scores ],
+            'specificity': [ x['specificity'] for x in scores ],
+            }
+
 
 df_out = pd.DataFrame(data_out) 
 df_out.to_csv("accuracy.csv", index=False)
