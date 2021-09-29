@@ -112,12 +112,13 @@ def main():
     pd_fdr = DataFrame(columns=opt.param_d.keys(), index=list(range(10, 95, 5)))
 
     for alpha in range(10, 95, 5):
-        alpha_ind, _, _ = model.alpha_threshold(alpha / 100)
+        alpha = alpha / 100
+        alpha_ind, _, _ = model.alpha_threshold(alpha)
         # t_s, fdp = false_discovery_proportion(n_feat, model.wjs_)
         fdr = false_discovery_rate(alpha_ind, dataset=opt.param_d["DATASET"])
         print(f"False discovery rate = {fdr} for alpha = {alpha}")
         opt.param_d["fdr"] = fdr
-        opt.param_d["alpha"] = alpha / 100
+        opt.param_d["alpha"] = alpha
         pd_fdr.loc[alpha] = Series(opt.param_d)
     
     # Record fdr and report parameters    

@@ -5,15 +5,21 @@ PC, HSIC and MMD.
 
 """
 
-from copy import Error
+
 import numpy as np
 
 import numpy.typing as npt
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
-from .utils import screen, build_knockoff, knock_off_check_parameters
-from .association_measures import projection_corr, tr, distance_corr, MMD, HSIC, pearson_correlation
+from .utils import build_knockoff, knock_off_check_parameters, screen
+from . import association_measures as am 
+
+
+available_am = [
+    "PC", "DC", "TR", "HSIC", "HSIC_norm",
+    "MMD", "MMD_norm", "pearson_correlation"
+]
 
 class KnockOff(BaseEstimator, TransformerMixin):
     """
@@ -31,7 +37,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
     ) -> None:
         super().__init__()
         self.alpha = alpha
-        assert measure_stat in ["PC", "DC", "TR", "HSIC", "MMD", "pearson_correlation"], "measure_stat incorrect"
+        assert measure_stat in available_am, "measure_stat incorrect"
         self.measure_stat = measure_stat
 
     def fit(self, X: npt.ArrayLike, y: npt.ArrayLike, n1: float = 0.1, d: int = 1, seed: int = 42):
@@ -72,27 +78,27 @@ class KnockOff(BaseEstimator, TransformerMixin):
             self.n_features_out_ = 0
             return self
 
+        
         if screening:
             print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
             X2, y2 = X[set_two, :], y[set_two]
-            A_d_hat, screened_features = screen(X1, y1, d, self.get_association_measure())
+            self.A_d_hat_, self.screen_features_ = screen(X1, y1, d, self.get_association_measure())
 
         else:
             print("No screening")
-            X2 = X
-            y2 = y
-            A_d_hat = np.arange(p)
-            _, screened_features = screen(X, y, p, self.get_association_measure())
+            X2, y2 = X, y
+            self.A_d_hat_, self.screen_features_ = screen(X, y, d, self.get_association_measure())
 
-        self.screen_features_ = screened_features
 
         # knock off step
         # construct knock off variables
         print("Starting knockoff step")
-        wjs = build_knockoff(X2[:, A_d_hat], y2, self.get_association_measure())
-        self.wjs_ = wjs
-        self.A_d_hat_ = A_d_hat
+        self.wjs_ = build_knockoff(
+            X2[:, self.A_d_hat_], y2, 
+            self.get_association_measure(),
+            precomputed_X=self.screen_features_[self.A_d_hat_]
+        )
 
         self.alpha_indices_, self.t_alpha_, self.n_features_out_ = self.alpha_threshold(self.alpha)
 
@@ -149,17 +155,21 @@ class KnockOff(BaseEstimator, TransformerMixin):
         given the attribute in __init__.
         """
         if self.measure_stat == "PC":
-            f = projection_corr
+            f = am.projection_corr
         elif self.measure_stat == "TR":
-            f = tr
+            f = am.tr
         elif self.measure_stat == "HSIC":
-            f = HSIC
+            f = am.HSIC
+        elif self.measure_stat == "HSIC_norm":
+            f = am.HSIC_norm
         elif self.measure_stat == "MMD":
-            f = MMD
+            f = am.MMD
+        elif self.measure_stat == "MMD_norm":
+            f = am.MMD_norm
         elif self.measure_stat == "DC":
-            f = distance_corr
+            f = am.distance_corr
         elif self.measure_stat == "pearson_correlation":
-            f = pearson_correlation
+            f = am.pearson_correlation
         else:
             raise ValueError(f"associative measure undefined {self.measure_stat}")
         return f

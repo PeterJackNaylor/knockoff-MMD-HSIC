@@ -1,7 +1,8 @@
 import numpy as np
 from sklearn import metrics
 
-from knock_off.association_measures import distance_corr, projection_corr, tr, HSIC, MMD
+from knock_off.association_measures import distance_corr, projection_corr, tr, HSIC
+from knock_off.association_measures.mmd import MMD_v
 from knock_off.association_measures.kernel_tools import get_kernel_function
 
 np.random.seed(42)
@@ -118,7 +119,7 @@ def test_hsic():
     assert np.all(HSIC(x_2, x_2**2) > hsic)
 
 def test_mmd():
-    mmd = MMD(X, Y, sigma=1)
+    mmd = MMD_v(X, Y, input_norm=True, sigma=1)
 
     ref = np.zeros((50, 1))
     for i in range(50):
@@ -133,13 +134,13 @@ def test_mmd():
     ## tested against https://github.com/AnthonyEbert/EasyMMD
     ## MMD(x, y) gave -0.03217994 with the R package , but that was U-stat
     ## this test is currently failing
-    mmd_ = MMD(x, y)
-    ans = 0.0006635
+    mmd_ = MMD_v(x, y, input_norm=True)
+    ans = 0.3937592
     np.testing.assert_almost_equal(mmd_, ans)
 
 
     x_2 = np.random.rand(10, 1)
-    assert np.all(MMD(x_2, x_2**2) > mmd)
+    assert np.all(MMD_v(x_2, x_2**2) > mmd)
 
 
 

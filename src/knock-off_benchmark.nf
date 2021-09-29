@@ -8,7 +8,7 @@ params.repeats = 1
 
 if (params.full == 'true'){
     DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a", "model_5b"] //"model_2c", "model_2d"
-    ASSOCIATION_MEASURES = ["PC", "DC", "TR", "HSIC", "pearson_correlation", "MMD"]
+    ASSOCIATION_MEASURES = ["HSIC_norm", "MMD", "MMD_norm"]
     sample_size = [100, 500, 1000]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
@@ -53,7 +53,11 @@ process knock_off {
         each T from ASSOCIATION_MEASURES
     output:
         file("fdr.csv") into FDR
+    when:
+        // MMD needs binary data
+        (!(T in ["MMD", "MMD_norm"])) || (data != "model_5b")
     script:
+        data = PARAMS.split(';')[0].split('=')[1]
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
         """
