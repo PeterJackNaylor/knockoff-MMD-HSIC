@@ -8,8 +8,8 @@ def screen(X, y, d, am):
     the unsorted list of scores on the features.
     """
     w_js = am(X, y)[:, 0]
-    import pdb; pdb.set_trace()
-    valid_features = w_js.shape[2] - np.sum(np.isnan(w_js))
+
+    valid_features = w_js.shape[0] - np.sum(np.isnan(w_js))
     if valid_features < d:
         print('the requested number of features ({}) could not be screened; \
 only {} features were screened instead'.format(d, valid_features))
