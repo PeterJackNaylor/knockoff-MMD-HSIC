@@ -10,6 +10,7 @@ def screen(X, y, d, am):
     w_js = am(X, y)[:, 0]
 
     valid_features = w_js.shape[0] - np.sum(np.isnan(w_js))
+
     if valid_features < d:
         print('the requested number of features ({}) could not be screened; \
 only {} features were screened instead'.format(d, valid_features))
@@ -20,9 +21,6 @@ only {} features were screened instead'.format(d, valid_features))
 
     selected_indices = w_js.argsort()[-d:][::-1]
     return selected_indices, w_js
-
-#     wj_s = am(X, y)
-#     return wj_s[0, 0]
 
 
 def build_knockoff(X, y, am, prescreened=None):
