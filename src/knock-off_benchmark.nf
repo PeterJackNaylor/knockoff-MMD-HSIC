@@ -7,8 +7,12 @@ params.full = 'true'
 params.repeats = 1
 
 if (params.full == 'true'){
-    DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a", "model_5b"] //"model_2c", "model_2d"
-    ASSOCIATION_MEASURES = ["HSIC_norm", "MMD", "MMD_norm"]
+    DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a", "model_5b", "model_5c"] //"model_2c", "model_2d"
+    ASSOCIATION_MEASURES = [
+        "HSIC_linear", "HSIC_linear_norm", "MMD_linear", "MMD_linear_norm",
+        "HSIC_distance", "HSIC_distance_norm", "MMD_distance", "MMD_distance_norm",
+        "HSIC_rbf", "HSIC_rbf_norm", "MMD_rbf", "MMD_rbf_norm"
+    ]
     sample_size = [100, 500, 1000]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
@@ -16,13 +20,22 @@ if (params.full == 'true'){
 }
 else {
     DATASETS = ["model_0", "model_5b"]
-    ASSOCIATION_MEASURES = ["HSIC_norm", "MMD", "MMD_norm"]
-    sample_size = [200]
+    ASSOCIATION_MEASURES = [
+        "HSIC_linear", "HSIC_linear_norm", "MMD_linear", "MMD_linear_norm",
+        "HSIC_distance", "HSIC_distance_norm", "MMD_distance", "MMD_distance_norm",
+        "HSIC_rbf", "HSIC_rbf_norm", "MMD_rbf", "MMD_rbf_norm"
+    ]
+    sample_size = [500]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '200': 90]
     feature_size = [5e2]
 }
 
+BINARY_AM = [
+    "MMD_linear", "MMD_linear_norm",
+    "MMD_distance", "MMD_distance_norm",
+    "MMD_rbf", "MMD_rbf_norm"
+]
 
 
 process data {
@@ -55,7 +68,7 @@ process knock_off {
         file("fdr.csv") into FDR
     when:
         // MMD needs binary data
-        (PARAMS.split(';')[0].split('=')[1] == "model_5b") || (!(T in ["MMD", "MMD_norm"]))
+        (PARAMS.split(';')[0].split('=')[1] == "model_5b") || (!(T in BINARY_AM))
     script:
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
@@ -76,10 +89,14 @@ process plots_and_simulation_results {
     input:
         file concatenated_exp from ALL_FDR
     output:
-        set file("empty_set.html"), file("*_fdr_control.html"), file("$concatenated_exp")
+        set file("*.html"), file("$concatenated_exp")
     script:
-        r_file = file("${CWD}/src/results/benchmark_plots.R")
+        py_box_plots = file("${CWD}/src/results/box_plots.py")
+        py_fdr_control = file("${CWD}/src/results/benchmark_plot_like_python.py")
+        py_empty_set = file("${CWD}/src/results/empty_set.py")
         """
-        Rscript $r_file $concatenated_exp
+        python $py_box_plots --csv_file $concatenated_exp
+        python $py_fdr_control --csv_file $concatenated_exp
+        python $py_empty_set --csv_file $concatenated_exp
         """
 }

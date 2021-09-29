@@ -75,8 +75,9 @@ def main():
 
             if legend[g_n[2]]:
                 legend[g_n[2]] = False
+
             fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
-            
+
         fig.update_layout(template="ggplot2", legend_title_text='Algorithm',
                     title={
                         'text': f"Dataset: {data}".replace("_", " "),

@@ -25,12 +25,12 @@ only {} features were screened instead'.format(d, valid_features))
 #     return wj_s[0, 0]
 
 
-def build_knockoff(X, y, am, precomputed_X=None):
+def build_knockoff(X, y, am, prescreened=None):
     d = X.shape[1]
-    if precomputed_X is None:
+    if prescreened is None:
         X_wj = am(X, y)[:, 0]
     else:
-        X_wj = precomputed_X
+        X_wj = prescreened
     
     X_hat = get_equi_features(X)
     X_hat_wj = am(X_hat, y)[:, 0]

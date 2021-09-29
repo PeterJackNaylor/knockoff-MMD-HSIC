@@ -17,8 +17,11 @@ from . import association_measures as am
 
 
 available_am = [
-    "PC", "DC", "TR", "HSIC", "HSIC_norm",
-    "MMD", "MMD_norm", "pearson_correlation"
+    "PC", "DC", "TR", "HSIC_linear", "HSIC_linear_norm",
+    "MMD_linear", "MMD_linear_norm", "HSIC_distance", 
+    "HSIC_distance_norm", "MMD_distance", "MMD_distance_norm",
+    "HSIC_rbf", "HSIC_rbf_norm", "MMD_rbf", 
+    "MMD_rbf_norm", "pearson_correlation"
 ]
 
 class KnockOff(BaseEstimator, TransformerMixin):
@@ -97,8 +100,17 @@ class KnockOff(BaseEstimator, TransformerMixin):
         self.wjs_ = build_knockoff(
             X2[:, self.A_d_hat_], y2, 
             self.get_association_measure(),
-            precomputed_X=self.screen_features_[self.A_d_hat_]
+            prescreened=self.screen_features_[self.A_d_hat_]
         )
+
+        print("###############################")
+        print("###############################")
+        print("For debuging purposes")
+        print(f"{self.wjs_=}")
+        print(f"{self.A_d_hat_=}")
+        print(f"N positive: {(np.array(self.wjs_) > 0).sum()} N negative: {(np.array(self.wjs_) < 0).sum()}")
+        print("###############################")
+        print("###############################")
 
         self.alpha_indices_, self.t_alpha_, self.n_features_out_ = self.alpha_threshold(self.alpha)
 
@@ -158,14 +170,30 @@ class KnockOff(BaseEstimator, TransformerMixin):
             f = am.projection_corr
         elif self.measure_stat == "TR":
             f = am.tr
-        elif self.measure_stat == "HSIC":
-            f = am.HSIC
-        elif self.measure_stat == "HSIC_norm":
-            f = am.HSIC_norm
-        elif self.measure_stat == "MMD":
-            f = am.MMD
-        elif self.measure_stat == "MMD_norm":
-            f = am.MMD_norm
+        elif self.measure_stat == "HSIC_linear":
+            f = am.HSIC_linear
+        elif self.measure_stat == "HSIC_linear_norm":
+            f = am.HSIC_linear_norm
+        elif self.measure_stat == "MMD_linear":
+            f = am.MMD_linear
+        elif self.measure_stat == "MMD_linear_norm":
+            f = am.MMD_linear_norm
+        elif self.measure_stat == "HSIC_distance":
+            f = am.HSIC_distance
+        elif self.measure_stat == "HSIC_distance_norm":
+            f = am.HSIC_distance_norm
+        elif self.measure_stat == "MMD_distance":
+            f = am.MMD_distance
+        elif self.measure_stat == "MMD_distance_norm":
+            f = am.MMD_distance_norm
+        elif self.measure_stat == "HSIC_rbf":
+            f = am.HSIC_rbf
+        elif self.measure_stat == "HSIC_rbf_norm":
+            f = am.HSIC_rbf_norm
+        elif self.measure_stat == "MMD_rbf":
+            f = am.MMD_rbf
+        elif self.measure_stat == "MMD_rbf_norm":
+            f = am.MMD_rbf_norm
         elif self.measure_stat == "DC":
             f = am.distance_corr
         elif self.measure_stat == "pearson_correlation":

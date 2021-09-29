@@ -56,7 +56,6 @@ def main():
         legend = {el: True for el in color_dictionnary.keys()}
 
         for g_n, group in groups:
-            
             alpha_group = group.groupby(['alpha'])
             mean = alpha_group.mean()
             sample_number = alpha_group.count()
@@ -108,9 +107,9 @@ def main():
         fig.update_xaxes(range=(0, 1.0), tickvals=tikz_x, ticktext=tikz_text_x)
         fig.update_layout(legend=dict(
             x=0.75,
-            y=0.80
+            y=0.95
         ))
-        fig.write_html(f"{data}_fdr_controls")
+        fig.write_html(f"{data}_fdr_controls.html")
 
 if __name__ == "__main__":
     main()
