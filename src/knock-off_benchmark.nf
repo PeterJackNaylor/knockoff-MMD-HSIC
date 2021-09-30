@@ -9,10 +9,9 @@ params.repeats = 1
 if (params.full == 'true'){
     DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a", "model_5b", "model_5c"] //"model_2c", "model_2d"
     ASSOCIATION_MEASURES = [
-        "HSIC_linear", "HSIC_linear_norm", "MMD_linear", "MMD_linear_norm",
-        "HSIC_distance", "HSIC_distance_norm", "MMD_distance", "MMD_distance_norm",
-        "HSIC_rbf", "HSIC_rbf_norm", "MMD_rbf", "MMD_rbf_norm"
+        "DC", "TR", "pearson_correlation", "HSIC", "MMD" // "PC"
     ]
+    KERNELS = ['linear', 'distance', 'gaussian']
     sample_size = [100, 500, 1000]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
@@ -21,20 +20,21 @@ if (params.full == 'true'){
 else {
     DATASETS = ["model_0", "model_5b"]
     ASSOCIATION_MEASURES = [
-        "HSIC_linear", "HSIC_linear_norm", "MMD_linear", "MMD_linear_norm",
-        "HSIC_distance", "HSIC_distance_norm", "MMD_distance", "MMD_distance_norm",
-        "HSIC_rbf", "HSIC_rbf_norm", "MMD_rbf", "MMD_rbf_norm"
+        "DC", "TR", "pearson_correlation", "HSIC", "MMD" // "PC"
     ]
+    KERNELS = ['linear', 'distance', 'gaussian']
     sample_size = [500]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '200': 90]
     feature_size = [5e2]
 }
 
+KERNELLESS_AM = [
+    "DC", "PC", "TR", "pearson_correlation"
+]
+
 BINARY_AM = [
-    "MMD_linear", "MMD_linear_norm",
-    "MMD_distance", "MMD_distance_norm",
-    "MMD_rbf", "MMD_rbf_norm"
+    "MMD"
 ]
 
 
@@ -64,18 +64,25 @@ process knock_off {
     input:
         set PARAMS, file(Xy) from XY
         each T from ASSOCIATION_MEASURES
+        each k from KERNELS
+        each normalise from 0..1
     output:
         file("fdr.csv") into FDR
     when:
+        MMD_and_BINARY = (PARAMS.split(';')[0].split('=')[1] == "model_5b") || (!(T in BINARY_AM))
+        AM_NO_KERNEL = ((k == "linear") && (normalise == 0)) || (!(T in KERNELLESS_AM))
+        MMD_and_BINARY && AM_NO_KERNEL
         // MMD needs binary data
-        (PARAMS.split(';')[0].split('=')[1] == "model_5b") || (!(T in BINARY_AM))
+        // only the kernel AM need normalise and kernel looping
     script:
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
         """
         python $py_file --t $T --n_1 0.3 \\
                         --d ${associated_d[feature_size]} \\
-                        --param "$PARAMS"
+                        --param "$PARAMS" \\
+                        --kernel $k \\
+                        --normalise $normalise
         """
 }
 

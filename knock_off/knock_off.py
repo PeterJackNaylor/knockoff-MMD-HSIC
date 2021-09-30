@@ -35,7 +35,8 @@ class KnockOff(BaseEstimator, TransformerMixin):
         self, alpha: float = 1.0,
         measure_stat: str = "PC",
         kernel: str = "gaussian",
-        normalized: bool = False,
+        normalised: bool = False,
+        normalise_input: bool = True
     ) -> None:
         super().__init__()
         self.alpha = alpha
@@ -43,14 +44,15 @@ class KnockOff(BaseEstimator, TransformerMixin):
         assert kernel in available_kernels, "kernel incorrect"
         self.measure_stat = measure_stat
         self.kernel = kernel
-        self.normalized = normalized
+        self.normalised = normalised
+        self.normalise_input = normalise_input
 
     def compute_assoc(self, x, y):
 
         args = {}
         if self.measure_stat in ["HSIC", "MMD"]:
             args['kernel'] = self.kernel
-            args['normalized'] = self.normalized
+            args['normalised'] = self.normalised
 
         assoc_func = self.get_association_measure()
 
@@ -98,17 +100,22 @@ class KnockOff(BaseEstimator, TransformerMixin):
         if screening:
             print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
-            #X1 = X1 / np.linalg.norm(X1, ord=2, axis=0)
-
             X2, y2 = X[set_two, :], y[set_two]
-            #X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            
+            if self.normalise_input:
+                X1 = X1 / np.linalg.norm(X1, ord=2, axis=0)
+                X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            
             self.A_d_hat_, self.screen_scores_ = screen(X1, y1, d, self.compute_assoc)
             screen_scores = None
 
         else:
             print("No screening")
             X2, y2 = X, y
-            #X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            
+            if self.normalise_input:
+                X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            
             self.A_d_hat_, self.screen_scores_ = screen(X2, y2, d, self.compute_assoc)
             screen_scores = self.screen_scores_[self.A_d_hat_]
 

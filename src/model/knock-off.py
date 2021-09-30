@@ -24,7 +24,7 @@ def top_k(wjs, S):
 def determine_covariate(dataset):
     if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
         correct_covariates = [0, 1, 2, 3]
-    elif dataset in ["model_4a", "model_4b", "model_5a", "model_5b"]:
+    elif dataset in ["model_4a", "model_4b", "model_5a", "model_5b", "model_5c"]:
         correct_covariates = list(range(10))
     else:
         print("DATASET name not recognised")
@@ -78,6 +78,8 @@ def options():
     parser.add_argument("--n_1", type=float, default=0.1)
     parser.add_argument("--d", type=int, default=10)
     parser.add_argument("--param", type=str, default=None)
+    parser.add_argument("--kernel", type=str, default="linear")
+    parser.add_argument("--normalise", type=int, default=0)
     args = parser.parse_args()
 
     if args.param:
@@ -87,7 +89,10 @@ def options():
         args.param_d["alpha"] = args.alpha
         args.param_d["n_1"] = args.n_1
         args.param_d["d"] = args.d
+        args.param_d["normalise"] = args.normalise 
+        args.param_d["kernel"] = args.kernel 
         args.param += f";AM={args.t};n_1={args.n_1};d={args.d}"
+    args.normalise = args.normalise == 1
     return args
 
 def main():
@@ -98,7 +103,11 @@ def main():
     print("Data loaded")
 
     ## Perform knock off procedure
-    model = KnockOff(0.1, measure_stat=opt.t)
+    model = KnockOff(0.1, # not really important as we loop over alpha afterwards
+        measure_stat=opt.t, 
+        kernel=opt.kernel, 
+        normalised=opt.normalise
+    )
     print("Starting fit process")
     model.fit(X, y, n1=opt.n_1, d=opt.d)
     print("Fit process finished")
