@@ -20,18 +20,11 @@ def get_kernel_function(name, nfeats=1):
     return kernel, kernel_params
 
 def compute_distance_matrix(x1, x2=None):
-    if len(x1.shape) == 1:
-        x1 = np.expand_dims(x1, axis=1)
-
+    x1 = check_vector(x1)
     x1_2 = np.power(x1, 2)
 
-    if x2 is not None:
-        if len(x2.shape) == 1:
-            x2 = np.expand_dims(x2, axis=1)
-        x2_2 = np.power(x2, 2)
-    else:
-        x2 = x1
-        x2_2 = x1_2
+    x2 = x1 if x2 is None else check_vector(x2)
+    x2_2 = np.power(x2, 2)
 
     dist_2 = x2_2 + x1_2.T - 2 * np.dot(x2, x1.T)
     return dist_2
@@ -47,33 +40,28 @@ def kernel_gaussian(x1, x2=None, sigma=None):
 
 def kernel_linear(x1, x2=None):
 
-    if len(x1.shape) == 1:
-        x1 = np.expand_dims(x1, axis=1)
-
-    if x2 is not None:
-        if len(x2.shape) == 1:
-            x2 = np.expand_dims(x2, axis=1)
-    else:
-        x2 = x1
+    x1 = check_vector(x1)
+    x2 = x1 if x2 is None else check_vector(x2)
 
     result = np.dot(x2, x1.T)
     return result
 
 def kernel_alpha(x1, x2=None, alpha=None):
-    if len(x1.shape) == 1:
-        x1 = np.expand_dims(x1, axis=1)
+    x1 = check_vector(x1)
     x1_alpha = np.power(np.abs(x1), alpha)
 
-    if x2 is not None:
-        if len(x2.shape) == 1:
-            x2 = np.expand_dims(x2, axis=1)
-        x2_alpha = np.power(np.abs(x2), alpha)
-    else:
-        x2 = x1
-        x2_alpha = x1_alpha
+    x2 = x1 if x2 is None else check_vector(x2)
+    x2_alpha = np.power(np.abs(x2), alpha)
 
     result = 0.5 * (x1_alpha + x2_alpha.T - np.power(np.abs(x2.T - x1), alpha))
     return result
+
+
+def check_vector(x):
+    if len(x.shape) == 1:
+        x = np.expand_dims(x, axis = 1)
+
+    return x
     
 def center(K):
 

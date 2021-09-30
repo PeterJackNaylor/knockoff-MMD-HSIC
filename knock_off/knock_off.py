@@ -17,12 +17,9 @@ from . import association_measures as am
 
 
 available_am = [
-    "PC", "DC", "TR", "HSIC_linear", "HSIC_linear_norm",
-    "MMD_linear", "MMD_linear_norm", "HSIC_distance", 
-    "HSIC_distance_norm", "MMD_distance", "MMD_distance_norm",
-    "HSIC_rbf", "HSIC_rbf_norm", "MMD_rbf", 
-    "MMD_rbf_norm", "pearson_correlation"
+    "PC", "DC", "TR", "HSIC", "MMD", "pearson_correlation"
 ]
+available_kernels = ["distance", "gaussian", "linear"]
 
 class KnockOff(BaseEstimator, TransformerMixin):
     """
@@ -36,12 +33,28 @@ class KnockOff(BaseEstimator, TransformerMixin):
 
     def __init__(
         self, alpha: float = 1.0,
-        measure_stat: str = "PC"
+        measure_stat: str = "PC",
+        kernel: str = "gaussian",
+        normalized: bool = False,
     ) -> None:
         super().__init__()
         self.alpha = alpha
         assert measure_stat in available_am, "measure_stat incorrect"
+        assert kernel in available_kernels, "kernel incorrect"
         self.measure_stat = measure_stat
+        self.kernel = kernel
+        self.normalized = normalized
+
+    def compute_assoc(self, x, y):
+
+        args = {}
+        if self.measure_stat in ["HSIC", "MMD"]:
+            args['kernel'] = self.kernel
+            args['normalized'] = self.normalized
+
+        assoc_func = self.get_association_measure()
+
+        return assoc_func(x, y, **args)
 
     def fit(self, X: npt.ArrayLike, y: npt.ArrayLike, n1: float = 0.1, d: int = 1, seed: int = 42):
         """Fits model in a supervised manner following algorithm 1 in the paper
@@ -85,22 +98,27 @@ class KnockOff(BaseEstimator, TransformerMixin):
         if screening:
             print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
+            #X1 = X1 / np.linalg.norm(X1, ord=2, axis=0)
+
             X2, y2 = X[set_two, :], y[set_two]
-            self.A_d_hat_, self.screen_features_ = screen(X1, y1, d, self.get_association_measure())
+            #X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            self.A_d_hat_, self.screen_scores_ = screen(X1, y1, d, self.compute_assoc)
+            screen_scores = None
 
         else:
             print("No screening")
             X2, y2 = X, y
-            self.A_d_hat_, self.screen_features_ = screen(X, y, d, self.get_association_measure())
-
+            #X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            self.A_d_hat_, self.screen_scores_ = screen(X2, y2, d, self.compute_assoc)
+            screen_scores = self.screen_scores_[self.A_d_hat_]
 
         # knock off step
         # construct knock off variables
         print("Starting knockoff step")
         self.wjs_ = build_knockoff(
-            X2[:, self.A_d_hat_], y2, 
-            self.get_association_measure(),
-            prescreened=self.screen_features_[self.A_d_hat_]
+            X2[:, self.A_d_hat_], y2,
+            self.compute_assoc,
+            prescreened=screen_scores
         )
 
         print("###############################")
@@ -108,7 +126,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
         print("For debuging purposes")
         print(f"{self.wjs_=}")
         print(f"{self.A_d_hat_=}")
-        print(f"N positive: {(np.array(self.wjs_) > 0).sum()} N negative: {(np.array(self.wjs_) < 0).sum()}")
+        print(f"N positive: {(self.wjs_ > 0).sum()} N negative: {(self.wjs_ < 0).sum()}")
         print("###############################")
         print("###############################")
 
@@ -170,30 +188,10 @@ class KnockOff(BaseEstimator, TransformerMixin):
             f = am.projection_corr
         elif self.measure_stat == "TR":
             f = am.tr
-        elif self.measure_stat == "HSIC_linear":
-            f = am.HSIC_linear
-        elif self.measure_stat == "HSIC_linear_norm":
-            f = am.HSIC_linear_norm
-        elif self.measure_stat == "MMD_linear":
-            f = am.MMD_linear
-        elif self.measure_stat == "MMD_linear_norm":
-            f = am.MMD_linear_norm
-        elif self.measure_stat == "HSIC_distance":
-            f = am.HSIC_distance
-        elif self.measure_stat == "HSIC_distance_norm":
-            f = am.HSIC_distance_norm
-        elif self.measure_stat == "MMD_distance":
-            f = am.MMD_distance
-        elif self.measure_stat == "MMD_distance_norm":
-            f = am.MMD_distance_norm
-        elif self.measure_stat == "HSIC_rbf":
-            f = am.HSIC_rbf
-        elif self.measure_stat == "HSIC_rbf_norm":
-            f = am.HSIC_rbf_norm
-        elif self.measure_stat == "MMD_rbf":
-            f = am.MMD_rbf
-        elif self.measure_stat == "MMD_rbf_norm":
-            f = am.MMD_rbf_norm
+        elif self.measure_stat == "HSIC":
+            f = am.HSIC
+        elif self.measure_stat == "MMD":
+            f = am.MMD
         elif self.measure_stat == "DC":
             f = am.distance_corr
         elif self.measure_stat == "pearson_correlation":
@@ -230,21 +228,22 @@ def threshold_alpha(Ws, w_indice, alpha):
 
     """
 
-    ts = np.sort([abs(t) for t in Ws.copy()])
+    ts = np.sort(abs(Ws))
 
-    def fraction_3_6_v(t):
+    def fraction_3_6(t):
         num = (Ws <= -abs(t)).sum() + 1
         den = max((Ws >= abs(t)).sum(), 1)
         return num / den
+    fraction_3_6_v = np.vectorize(fraction_3_6)
+    fdp = fraction_3_6_v(ts)
 
-    fdp = list(map(fraction_3_6_v, ts))
-    t_alpha = np.where(np.array(fdp) <= alpha)
-    if t_alpha[0].sum() == 0:
+    t_alpha = np.where(fdp <= alpha)
+    if t_alpha[0].size == 0:
         # no one selected..
         t_alpha_min = np.inf
     else:
         t_alpha_min = min(ts[t_alpha])
-    indices = [w_indice[i] for i, el in enumerate(Ws) if el >= t_alpha_min]
+    indices = w_indice[np.where(Ws >= t_alpha_min)[0]]
     return indices, t_alpha
 
 

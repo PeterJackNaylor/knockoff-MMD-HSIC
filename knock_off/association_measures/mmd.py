@@ -38,25 +38,7 @@ def calibrate_sigma_mmd(x, y):
 #     return mmd_stats
 
 
-def MMD_linear(X, Y, kernel='linear', sigma=None):
-    return MMD(X, Y, kernel=kernel, sigma=sigma)
-
-def MMD_linear_norm(X, Y, kernel='linear', sigma=None):
-    return MMD_norm(X, Y, kernel=kernel, sigma=sigma)
-
-def MMD_distance(X, Y, kernel='distance', sigma=None):
-    return MMD(X, Y, kernel=kernel, sigma=sigma)
-
-def MMD_distance_norm(X, Y, kernel='distance', sigma=None):
-    return MMD_norm(X, Y, kernel=kernel, sigma=sigma)
-
-def MMD_rbf(X, Y, kernel='gaussian', sigma=None):
-    return MMD(X, Y, kernel=kernel, sigma=sigma)
-
-def MMD_rbf_norm(X, Y, kernel='gaussian', sigma=None):
-    return MMD_norm(X, Y, kernel=kernel, sigma=sigma)
-
-def MMD(X, Y, kernel='distance', sigma=None):
+def MMD(X, Y, kernel='distance', normalized=False, sigma=None):
     """ 
     V-statistic of MMD normalised.
     X is the input and Y the labels.
@@ -72,7 +54,7 @@ def MMD(X, Y, kernel='distance', sigma=None):
     assert categories.shape[0] == 2
 
     Y0_idx = np.where(Y == categories[0])[0]
-    Y1_idx = np.array(list(set(np.arange(n)) - set(Y0_idx)))
+    Y1_idx = np.where(Y == categories[1])[0]
 
     n0 = Y0_idx.shape[0]
     n1 = Y1_idx.shape[0]
@@ -92,7 +74,7 @@ def MMD(X, Y, kernel='distance', sigma=None):
             X0[:,k:k+1], X1[:,k:k+1],
             kernel=kernel,
             input_norm=True,
-            normed=False,
+            normed=normalized,
             sigma=sigma)
     
     return mmd_stats
@@ -156,7 +138,6 @@ def MMD_v(X, Y, kernel='gaussian', input_norm=True, normed=False, sigma=None):
     kernel, kernel_params = get_kernel_function(kernel, nfeats=sigma)
 
     if input_norm:
-        # import pdb; pdb.set_trace()
         scalar_norm = np.linalg.norm(np.concatenate([X[:,0], Y[:,0]], axis=0))
         X = X[:,0] / scalar_norm #np.linalg.norm(X[:,0]) #scalar_norm
         Y = Y[:,0] / scalar_norm #np.linalg.norm(Y[:,0]) #scalar_norm

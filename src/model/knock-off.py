@@ -33,7 +33,7 @@ def determine_covariate(dataset):
 def minimum_model_size_including_active(model, dataset="model_2a"):
 
     correct_covariates = determine_covariate(dataset)
-    screening_score = model.screen_features_
+    screening_score = model.screen_scores_
 
     k0 = top_k(screening_score, correct_covariates)
     return k0

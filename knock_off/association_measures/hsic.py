@@ -2,55 +2,8 @@ import numpy as np
 
 from .kernel_tools import center, get_kernel_function
 
-def HSIC_linear(X, Y, kernel='linear', sigma=None):
 
-    return HSIC_v(X, Y, 
-        kernel=kernel,
-        input_norm=False,
-        normed=False,
-        sigma=sigma)
-
-def HSIC_linear_norm(X, Y, kernel='linear', sigma=None):
-
-    return HSIC_v(X, Y, 
-        kernel=kernel,
-        input_norm=False,
-        normed=True,
-        sigma=sigma)
-
-def HSIC_distance(X, Y, kernel='distance', sigma=None):
-
-    return HSIC_v(X, Y, 
-        kernel=kernel,
-        input_norm=False,
-        normed=False,
-        sigma=sigma)
-
-def HSIC_distance_norm(X, Y, kernel='distance', sigma=None):
-
-    return HSIC_v(X, Y, 
-        kernel=kernel,
-        input_norm=False,
-        normed=True,
-        sigma=sigma)
-
-def HSIC_rbf(X, Y, kernel='gaussian', sigma=None):
-
-    return HSIC_v(X, Y, 
-        kernel=kernel,
-        input_norm=False,
-        normed=False,
-        sigma=sigma)
-
-def HSIC_rbf_norm(X, Y, kernel='gaussian', sigma=None):
-
-    return HSIC_v(X, Y, 
-        kernel=kernel,
-        input_norm=False,
-        normed=True,
-        sigma=sigma)
-
-def HSIC_v(X, Y, kernel='gaussian', input_norm=False, normed=False, sigma=None):
+def HSIC(X, Y, kernel='gaussian', input_norm=False, normalized=False, sigma=None):
     n, d = X.shape
     ny, dy = Y.shape
 
@@ -64,7 +17,7 @@ def HSIC_v(X, Y, kernel='gaussian', input_norm=False, normed=False, sigma=None):
 
     Ky = center(kernel(Y[:, 0], **kernel_params))
 
-    if normed:
+    if normalized:
         hsic_yy = np.trace(np.matmul(Ky, Ky))
 
     hsic_stats = np.zeros((d, 1))
@@ -78,7 +31,7 @@ def HSIC_v(X, Y, kernel='gaussian', input_norm=False, normed=False, sigma=None):
         Kx = center(kernel(X_tmp, **kernel_params))
         hsic = np.trace(np.matmul(Kx, Ky))
 
-        if normed:
+        if normalized:
             hsic_xx = np.trace(np.matmul(Kx, Kx))
             norm = (hsic_xx * hsic_yy) ** 0.5
             hsic = hsic / norm
