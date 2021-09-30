@@ -24,20 +24,16 @@ only {} features were screened instead'.format(d, valid_features))
 
 
 def build_knockoff(X, y, am, prescreened=None):
-    d = X.shape[1]
     if prescreened is None:
         X_wj = am(X, y)[:, 0]
     else:
         X_wj = prescreened
-    
+
     X_hat = get_equi_features(X)
+    #X_hat = X_hat / np.linalg.norm(X_hat, ord=2, axis=0)
     X_hat_wj = am(X_hat, y)[:, 0]
 
-    def w_j(i):
-        return (X_wj[i] - X_hat_wj[i])
-
-    wjs = list(map(w_j, np.arange(d)))
-    return wjs
+    return X_wj - X_hat_wj
 
 
 def orthonormalize(X):

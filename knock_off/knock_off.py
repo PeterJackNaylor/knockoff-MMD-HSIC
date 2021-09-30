@@ -235,21 +235,22 @@ def threshold_alpha(Ws, w_indice, alpha):
 
     """
 
-    ts = np.sort([abs(t) for t in Ws.copy()])
+    ts = np.sort(abs(Ws))
 
-    def fraction_3_6_v(t):
+    def fraction_3_6(t):
         num = (Ws <= -abs(t)).sum() + 1
         den = max((Ws >= abs(t)).sum(), 1)
         return num / den
+    fraction_3_6_v = np.vectorize(fraction_3_6)
+    fdp = fraction_3_6_v(ts)
 
-    fdp = list(map(fraction_3_6_v, ts))
-    t_alpha = np.where(np.array(fdp) <= alpha)
-    if t_alpha[0].sum() == 0:
+    t_alpha = np.where(fdp <= alpha)
+    if t_alpha[0].size == 0:
         # no one selected..
         t_alpha_min = np.inf
     else:
         t_alpha_min = min(ts[t_alpha])
-    indices = [w_indice[i] for i, el in enumerate(Ws) if el >= t_alpha_min]
+    indices = w_indice[np.where(Ws >= t_alpha_min)[0]]
     return indices, t_alpha
 
 
