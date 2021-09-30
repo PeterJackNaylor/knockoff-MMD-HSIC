@@ -7,13 +7,10 @@ def screen(X, y, d, am):
     Returns the indices of the top d features and
     the unsorted list of scores on the features.
     """
-    def w_j(x_j):
-        x_j = np.expand_dims(x_j.copy(), axis=1)
-        return am(x_j, y)
+    w_js = am(X, y)[:, 0]
 
-    w_js = np.apply_along_axis(w_j, 0, X)
+    valid_features = w_js.shape[0] - np.sum(np.isnan(w_js))
 
-    valid_features = w_js.shape[2] - np.sum(np.isnan(w_js))
     if valid_features < d:
         print('the requested number of features ({}) could not be screened; \
 only {} features were screened instead'.format(d, valid_features))
@@ -22,19 +19,20 @@ only {} features were screened instead'.format(d, valid_features))
     # nans are at the end when sorting
     w_js[np.isnan(w_js)] = -float('inf')
 
-    scores = w_js[0, 0].argsort()[-d:][::-1]
-    return scores, w_js[0, 0]
+    selected_indices = w_js.argsort()[-d:][::-1]
+    return selected_indices, w_js
 
 
-def build_knockoff(X, y, am):
-    d = X.shape[1]
+def build_knockoff(X, y, am, prescreened=None):
+    if prescreened is None:
+        X_wj = am(X, y)[:, 0]
+    else:
+        X_wj = prescreened
+
     X_hat = get_equi_features(X)
-    def w_j(i):
-        x_j = X[:, i:i+1]
-        x_j_hat = X_hat[:, i:i+1]
-        return (am(x_j, y) - am(x_j_hat, y))[0,0]
-    wjs = list(map(w_j, np.arange(d)))
-    return wjs
+    X_hat_wj = am(X_hat, y)[:, 0]
+
+    return X_wj - X_hat_wj
 
 
 def orthonormalize(X):
