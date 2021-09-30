@@ -23,7 +23,7 @@ def compute_distance_matrix(x1, x2=None):
     x1 = check_vector(x1)
     x1_2 = np.power(x1, 2)
 
-    x2 = x1 if not x2 else check_vector(x2)
+    x2 = x1 if x2 is None else check_vector(x2)
     x2_2 = np.power(x2, 2)
 
     dist_2 = x2_2 + x1_2.T - 2 * np.dot(x2, x1.T)
@@ -41,7 +41,7 @@ def kernel_gaussian(x1, x2=None, sigma=None):
 def kernel_linear(x1, x2=None):
 
     x1 = check_vector(x1)
-    x2 = x1 if not x2 else check_vector(x2)
+    x2 = x1 if x2 is None else check_vector(x2)
 
     result = np.dot(x2, x1.T)
     return result
@@ -50,7 +50,7 @@ def kernel_alpha(x1, x2=None, alpha=None):
     x1 = check_vector(x1)
     x1_alpha = np.power(np.abs(x1), alpha)
 
-    x2 = x1 if not x2 else check_vector(x2)
+    x2 = x1 if x2 is None else check_vector(x2)
     x2_alpha = np.power(np.abs(x2), alpha)
 
     result = 0.5 * (x1_alpha + x2_alpha.T - np.power(np.abs(x2.T - x1), alpha))
