@@ -20,7 +20,7 @@ def get_kernel_function(name, nfeats=1):
     return kernel, kernel_params
 
 def compute_distance_matrix(x1, x2=None):
-    x1 = np.expand_dims(x1, axis=1)
+    x1 = check_vector(x1)
     x1_2 = np.power(x1, 2)
 
     x2 = x1 if not x2 else check_vector(x2)
