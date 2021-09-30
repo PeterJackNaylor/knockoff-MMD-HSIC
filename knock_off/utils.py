@@ -30,7 +30,6 @@ def build_knockoff(X, y, am, prescreened=None):
         X_wj = prescreened
 
     X_hat = get_equi_features(X)
-    #X_hat = X_hat / np.linalg.norm(X_hat, ord=2, axis=0)
     X_hat_wj = am(X_hat, y)[:, 0]
 
     return X_wj - X_hat_wj
