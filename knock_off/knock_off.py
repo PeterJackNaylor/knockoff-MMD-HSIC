@@ -85,22 +85,27 @@ class KnockOff(BaseEstimator, TransformerMixin):
         if screening:
             print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
+            #X1 = X1 / np.linalg.norm(X1, ord=2, axis=0)
+
             X2, y2 = X[set_two, :], y[set_two]
-            self.A_d_hat_, self.screen_features_ = screen(X1, y1, d, self.get_association_measure())
+            #X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            self.A_d_hat_, self.screen_scores_ = screen(X1, y1, d, self.get_association_measure())
+            screen_scores = None
 
         else:
             print("No screening")
             X2, y2 = X, y
-            self.A_d_hat_, self.screen_features_ = screen(X, y, d, self.get_association_measure())
-
+            #X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
+            self.A_d_hat_, self.screen_scores_ = screen(X2, y2, d, self.get_association_measure())
+            screen_scores = self.screen_scores_[self.A_d_hat_]
 
         # knock off step
         # construct knock off variables
         print("Starting knockoff step")
         self.wjs_ = build_knockoff(
-            X2[:, self.A_d_hat_], y2, 
+            X2[:, self.A_d_hat_], y2,
             self.get_association_measure(),
-            prescreened=self.screen_features_[self.A_d_hat_]
+            prescreened=screen_scores
         )
 
         print("###############################")
@@ -108,7 +113,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
         print("For debuging purposes")
         print(f"{self.wjs_=}")
         print(f"{self.A_d_hat_=}")
-        print(f"N positive: {(np.array(self.wjs_) > 0).sum()} N negative: {(np.array(self.wjs_) < 0).sum()}")
+        print(f"N positive: {(self.wjs_ > 0).sum()} N negative: {(self.wjs_ < 0).sum()}")
         print("###############################")
         print("###############################")
 
