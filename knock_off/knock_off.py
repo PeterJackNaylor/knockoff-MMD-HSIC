@@ -54,6 +54,9 @@ class KnockOff(BaseEstimator, TransformerMixin):
             args['kernel'] = self.kernel
             args['normalised'] = self.normalised
 
+        if self.normalise_input:
+            x = x / np.linalg.norm(x, ord=2, axis=0)
+
         assoc_func = self.get_association_measure()
 
         return assoc_func(x, y, **args)
@@ -101,10 +104,6 @@ class KnockOff(BaseEstimator, TransformerMixin):
             print("Starting screening")
             X1, y1 = X[set_one, :], y[set_one]
             X2, y2 = X[set_two, :], y[set_two]
-            
-            if self.normalise_input:
-                X1 = X1 / np.linalg.norm(X1, ord=2, axis=0)
-                X2 = X2 / np.linalg.norm(X2, ord=2, axis=0)
             
             self.A_d_hat_, self.screen_scores_ = screen(X1, y1, d, self.compute_assoc)
             screen_scores = None

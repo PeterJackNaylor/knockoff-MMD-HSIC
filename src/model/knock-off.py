@@ -27,6 +27,7 @@ def determine_covariate(dataset):
     elif dataset in ["model_4a", "model_4b", "model_5a", "model_5b", "model_5c"]:
         correct_covariates = list(range(10))
     else:
+        correct_covariates = []
         print("DATASET name not recognised")
     return correct_covariates
 
@@ -77,6 +78,7 @@ def options():
     parser.add_argument("--alpha", type=float, default=0.5)
     parser.add_argument("--n_1", type=float, default=0.1)
     parser.add_argument("--d", type=int, default=10)
+    parser.add_argument("--xy", type=str, default="Xy.npz")
     parser.add_argument("--param", type=str, default=None)
     parser.add_argument("--kernel", type=str, default="linear")
     parser.add_argument("--normalise", type=int, default=0)
@@ -99,7 +101,7 @@ def main():
     ## Load data
     opt = options()
     print("Loading data")
-    X, y = load_npz("Xy.npz")
+    X, y = load_npz(opt.xy)
     print("Data loaded")
 
     ## Perform knock off procedure
@@ -117,6 +119,7 @@ def main():
     opt.param_d["k0"] = k0
         
     opt.param_d["fdr"] = 0
+    opt.param_d["features"] = ""
 
     pd_fdr = DataFrame(columns=opt.param_d.keys())
 
@@ -128,6 +131,7 @@ def main():
         print(f"False discovery rate = {fdr} for alpha = {alpha}")
         opt.param_d["fdr"] = fdr
         opt.param_d["alpha"] = alpha
+        opt.param_d["features"] = ",".join([ str(x) for x in alpha_ind ])
         pd_fdr.loc[alpha] = Series(opt.param_d)
     
     # Record fdr and report parameters    

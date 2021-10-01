@@ -3,12 +3,14 @@
 // very similar to benchmark but with real data, therefor/
 // It may need train/test split if we need to check the prediciton.
 params.repeats = 1
-params.splits = 1
-ASSOCIATION_MEASURES = ["PC", "DistanceCorrelation", "TR"]
+params.splits = 8
+ASSOCIATION_MEASURES = ["DC", "HSIC", "MMD", "PC", "TR", "pearson_correlation"]
 CWD = System.getProperty("user.dir")
+DATASETS = ['MNIST.py']
 
 
 process data {
+
     tag "DATASET=${data_name}"
 
     input:
@@ -16,12 +18,14 @@ process data {
     output:
         set val("DATASET=${data_name}"), file("Xy.npz") into XY
     script:
+        dl_file = file("${CWD}/src/data/${data_name}")
         """
-        python ${CWD}/src/data/${data_name}.py
+        $dl_file 
         """
 }
 
 process split_data {
+
     tag "${PARAMS};fold=${I}"
 
     input:
@@ -37,34 +41,51 @@ process split_data {
 }
 
 process knock_off {
+
+    tag "AM=${T};${PARAMS}"
+    errorStrategy 'ignore'
     
     input:
         set PARAMS, file(Xy_train), file(Xy_test) from splits
         each T from ASSOCIATION_MEASURES
-        each alpha from 1..5
     output:
-        file("fdr.csv") into FDR
+        set val("AM=${T};${PARAMS}"), file(Xy_train), file(Xy_test), file("fdr.csv") into selected_features
     script:
         feature_size = PARAMS.split(';')[1].split('=')[1]
+        py_file = file("${CWD}/src/model/knock-off.py")
         """
-        echo ${feature_size}
-        python ${CWD}/src/model/knock-off.py --alpha ${alpha / 10} --t $T --n_1 0.3 --d ${associated_d[feature_size]} --param "$PARAMS"
+        python $py_file --t $T --n_1 0.3 \\
+                        --d 100 \\
+                        --param "$PARAMS" \\
+                        --xy $Xy_train
         """
 }
 
 
-FDR.collectFile(skip: 1, keepHeader: true)
-   .set { ALL_FDR }
+process classify {
 
-
-process plots_and_real_data_results {
-    publishDir "./outputs/real_data_results", mode: 'copy', overwrite: 'true'
     input:
-        file concatenated_exp from ALL_FDR
+        set PARAMS, file(Xy_train), file(Xy_test), file(FEATURES) from selected_features
     output:
-        set file("real_data_plot.html"), file("$concatenated_exp")
+        file 'accuracy.csv' into ACCURACIES
+    script:
+        template 'rf.py'
+
+}
+
+ACCURACIES.collectFile(skip: 1, keepHeader: true)
+   .set { ALL_ACCURACIES }
+   
+process output {
+    
+    publishDir "./outputs/real_world/mnist", mode: 'copy', overwrite: 'true'
+
+    input:
+        file concatenated_exp from ALL_ACCURACIES
+    output:
+        file "scores.csv"
     script:
         """
-        python ${CWD}/src/results/ --csv_file $concatenated_exp
+        cp $concatenated_exp scores.csv
         """
 }
