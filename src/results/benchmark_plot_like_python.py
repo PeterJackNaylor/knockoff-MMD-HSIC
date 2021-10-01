@@ -43,8 +43,8 @@ def main():
     datasets = np.unique(table['DATASET'])
     for data in list(datasets):
         table_data = table.loc[table['DATASET'] == data]
-        groups = table_data.groupby(["n", "p", "AM"])
 
+        groups = table_data.groupby(["n", "p", "AM", "kernel", "normalise"])
         fig = make_subplots(rows=3, cols=3,
                             shared_xaxes=True,
                             shared_yaxes=True,
@@ -56,6 +56,12 @@ def main():
         legend = {el: True for el in color_dictionnary.keys()}
 
         for g_n, group in groups:
+            if g_n[2] not in ["PC", "DC", "TR", "pearson_correlation"]:
+                s1 = "" if g_n[4] == 0 else "_norm"
+                name = g_n[2] + "_" + g_n[3] + s1
+            else:
+                name = g_n[2]
+
             alpha_group = group.groupby(['alpha'])
             mean = alpha_group.mean()
             sample_number = alpha_group.count()
@@ -70,15 +76,15 @@ def main():
             curve = go.Scatter(
                 x=x,
                 y=y,
-                name=f"{g_n[2]}",
+                name=f"{name}",
                 error_y=dict(
                     array=err),
                 marker=dict(
-                    color=color_dictionnary[g_n[2]]
+                    color=color_dictionnary[name]
                 ),
-                showlegend=legend[g_n[2]])
-            if legend[g_n[2]]:
-                legend[g_n[2]] = False
+                showlegend=legend[name])
+            if legend[name]:
+                legend[name] = False
             fig.add_trace(curve, row=row_dic[p], col=col_dic[n])
             fig.add_trace(go.Scatter(
                             x=id_,

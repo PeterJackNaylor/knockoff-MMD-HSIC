@@ -7,9 +7,23 @@ params.full = 'true'
 params.repeats = 1
 
 if (params.full == 'true'){
-    DATASETS = ["model_0", "model_2a", "model_2b", "model_4a", "model_4b", "model_5a", "model_5b", "model_5c"] //"model_2c", "model_2d"
+    DATASETS = [
+        "model_0",
+        "model_2a",
+        "model_2b",
+        "model_4a",
+        "model_4b",
+        "model_5a",
+        "model_5b",
+        "model_5c"
+    ] //"model_2c", "model_2d"
+
     ASSOCIATION_MEASURES = [
-        "DC", "TR", "pearson_correlation", "HSIC", "MMD" // "PC"
+        "DC",
+        "TR",
+        "pearson_correlation",
+        "HSIC",
+        "MMD" // "PC"
     ]
     KERNELS = ['linear', 'distance', 'gaussian']
     sample_size = [100, 500, 1000]
@@ -35,6 +49,11 @@ KERNELLESS_AM = [
 
 BINARY_AM = [
     "MMD"
+]
+
+BINARY_MODELS = [
+    "model_5b",
+    "model_5c"
 ]
 
 
@@ -69,7 +88,7 @@ process knock_off {
     output:
         file("fdr.csv") into FDR
     when:
-        MMD_and_BINARY = (PARAMS.split(';')[0].split('=')[1] == "model_5b") || (!(T in BINARY_AM))
+        MMD_and_BINARY = (PARAMS.split(';')[0].split('=')[1] in BINARY_MODELS) || (!(T in BINARY_AM))
         AM_NO_KERNEL = ((k == "linear") && (normalise == 0)) || (!(T in KERNELLESS_AM))
         MMD_and_BINARY && AM_NO_KERNEL
         // MMD needs binary data
