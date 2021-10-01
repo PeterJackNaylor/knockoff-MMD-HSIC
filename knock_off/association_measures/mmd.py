@@ -4,7 +4,7 @@ from .kernel_tools import get_kernel_function, compute_distance_matrix
 
 def calibrate_sigma_mmd(x, y):
     flat = np.concatenate([x.flatten(), y.flatten()], axis=0)
-    result = np.median(compute_distance_matrix(flat))
+    result = np.mean(compute_distance_matrix(flat))
     return 0.5 * result
 
 def split_x_with_respect_to_y(X, Y):
@@ -42,22 +42,22 @@ def MMD(X, Y, kernel='gaussian', normalised=False, sigma=None):
     for k in range(d):
         mmd_stats[k] = MMD_v(
             X0[:,k], X1[:,k],
-            kernel=kernel,
+            kernel_name=kernel,
             normalised=normalised,
             sigma=sigma)
     
     return mmd_stats
 
-def MMD_v(X, Y, kernel='gaussian', normalised=False, sigma=None):
+def MMD_v(X, Y, kernel_name='gaussian', normalised=False, sigma=None):
     """
     General MMD V-statistic to be used for specific cases. X and Y correspond
     to two distribution with the same domain.
     """
     n = X.shape[0]
     
-    kernel, kernel_params = get_kernel_function(kernel, nfeats=sigma)
+    kernel, kernel_params = get_kernel_function(kernel_name, nfeats=sigma)
 
-    if sigma is None and kernel == "gaussian":
+    if sigma is None and kernel_name == "gaussian":
         sigma = calibrate_sigma_mmd(X, Y)
         kernel_params['sigma'] = sigma
     

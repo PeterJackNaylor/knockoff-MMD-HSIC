@@ -46,7 +46,7 @@ def main():
 
     for data in list(datasets):
         table_data = table.loc[table['DATASET'] == data]
-        groups = table_data.groupby(["n", "p", "AM"])
+        groups = table_data.groupby(["n", "p", "AM", "kernel", "normalise"])
 
         fig = make_subplots(rows=3, cols=3,
                             shared_xaxes=True,
@@ -59,6 +59,11 @@ def main():
         legend = {el: True for el in color_dictionnary.keys()}
 
         for g_n, group in groups:
+            if g_n[2] not in ["PC", "DC", "TR", "pearson_correlation"]:
+                s1 = "" if g_n[4] == 0 else "_norm"
+                name = g_n[2] + "_" + g_n[3] + s1
+            else:
+                name = g_n[2]
             n = int(g_n[0])
             p = int(g_n[1])
 
@@ -66,15 +71,15 @@ def main():
 
             boxes = go.Box(
                         y=size_model,
-                        name=f"{g_n[2]}",
-                        marker_color=color_dictionnary[g_n[2]],
-                        showlegend=legend[g_n[2]],
+                        name=f"{name}",
+                        marker_color=color_dictionnary[name],
+                        showlegend=legend[name],
                         boxmean=True,
                         boxpoints=False
                     )
 
-            if legend[g_n[2]]:
-                legend[g_n[2]] = False
+            if legend[name]:
+                legend[name] = False
 
             fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
 
@@ -94,7 +99,7 @@ def main():
 
         fig.update_layout(legend=dict(
             x=0.75,
-            y=0.80
+            y=0.95
         ))
         fig.write_html(f"{data}_minimum_model_size--box_plots.html")
 
