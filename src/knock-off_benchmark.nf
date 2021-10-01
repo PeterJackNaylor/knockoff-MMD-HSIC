@@ -23,7 +23,8 @@ if (params.full == 'true'){
         "TR",
         "pearson_correlation",
         "HSIC",
-        "MMD" // "PC"
+        "MMD",
+        "PC"
     ]
     KERNELS = ['linear', 'distance', 'gaussian']
     sample_size = [100, 500, 1000]
