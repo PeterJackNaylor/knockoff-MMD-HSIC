@@ -4,7 +4,7 @@ from .kernel_tools import get_kernel_function, compute_distance_matrix
 
 def calibrate_sigma_mmd(x, y):
     flat = np.concatenate([x.flatten(), y.flatten()], axis=0)
-    result = np.mean(compute_distance_matrix(flat))
+    result = np.median(compute_distance_matrix(flat))
     return 0.5 * result
 
 def split_x_with_respect_to_y(X, Y):
