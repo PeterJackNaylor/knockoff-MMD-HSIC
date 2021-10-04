@@ -6,21 +6,25 @@ params.repeats = 1
 params.splits = 8
 ASSOCIATION_MEASURES = ["DC", "HSIC", "MMD", "PC", "TR", "pearson_correlation"]
 CWD = System.getProperty("user.dir")
-DATASETS = ['MNIST.py']
+// DATASETS = ['MNIST.py']
+DATASETS = ['tcga.R']
+PHENOTYPES = ['BRCA', 'GBM', 'OV', 'LUAD']
 
 
 process data {
 
-    tag "DATASET=${data_name}"
+    // tag "DATASET=${data_name}"
+    tag "DATASET=${data_name}-${phenotype}"
 
     input:
         val data_name from DATASETS
+        each phenotype from PHENOTYPES
     output:
         set val("DATASET=${data_name}"), file("Xy.npz") into XY
     script:
         dl_file = file("${CWD}/src/data/${data_name}")
         """
-        $dl_file 
+        $dl_file $phenotype
         """
 }
 

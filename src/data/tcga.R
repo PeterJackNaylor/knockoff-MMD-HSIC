@@ -5,7 +5,10 @@ library(TCGAbiolinks)
 library(tidyverse)
 library(reticulate)
 
-query <- GDCquery(project = "TCGA-BRCA",
+args = commandArgs(trailingOnly=TRUE)
+tumor = args[1]
+
+query <- GDCquery(project = paste0("TCGA-", tumor),
                   data.category = "Transcriptome Profiling",
                   data.type = "Gene Expression Quantification",
                   workflow.type = "HTSeq - FPKM-UQ")
