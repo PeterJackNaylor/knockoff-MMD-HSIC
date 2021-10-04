@@ -36,7 +36,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
         measure_stat: str = "PC",
         kernel: str = "gaussian",
         normalised: bool = False,
-        normalise_input: bool = False
+        normalise_input: bool = True
     ) -> None:
         super().__init__()
         self.alpha = alpha
