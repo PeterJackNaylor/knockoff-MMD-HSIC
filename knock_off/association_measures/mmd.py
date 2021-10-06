@@ -52,7 +52,7 @@ def MMD_index(X, group_idx, kernel_name='gaussian', normalised=False, sigma=None
     kernel, kernel_params = get_kernel_function(kernel_name, nfeats=sigma)
 
     if sigma is None and kernel_name == "gaussian":
-        sigma = calibrate_sigma_mmd(X, Y)
+        sigma = calibrate_sigma_mmd(X)
         kernel_params['sigma'] = sigma
     
     group_estimates = np.zeros(number_of_groups)
