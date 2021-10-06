@@ -31,17 +31,19 @@ if (params.full == 'true'){
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
     feature_size = [100, 5e2, 5e3]
+    NORMALIZE = [0]
 }
 else {
-    DATASETS = ["model_0", "model_5b"]
+    DATASETS = ["model_6a"]
     ASSOCIATION_MEASURES = [
-        "DC", "TR", "pearson_correlation", "HSIC", "MMD" // "PC"
+        "MMD" // "PC"
     ]
     KERNELS = ['linear', 'distance', 'gaussian']
     sample_size = [500]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '200': 90]
     feature_size = [5e2]
+    NORMALIZE = [0]
 }
 
 KERNELLESS_AM = [
@@ -54,7 +56,8 @@ BINARY_AM = [
 
 BINARY_MODELS = [
     "model_5b",
-    "model_5c"
+    "model_5c",
+    "model_6a"
 ]
 
 
@@ -85,7 +88,7 @@ process knock_off {
         set PARAMS, file(Xy) from XY
         each T from ASSOCIATION_MEASURES
         each k from KERNELS
-        each normalise from 0..1
+        each normalise from NORMALIZE
     output:
         file("fdr.csv") into FDR
     when:
@@ -98,6 +101,7 @@ process knock_off {
         feature_size = PARAMS.split(';')[1].split('=')[1]
         py_file = file("${CWD}/src/model/knock-off.py")
         """
+
         python $py_file --t $T --n_1 0.3 \\
                         --d ${associated_d[feature_size]} \\
                         --param "$PARAMS" \\
@@ -122,8 +126,10 @@ process plots_and_simulation_results {
         py_fdr_control = file("${CWD}/src/results/benchmark_plot_like_python.py")
         py_empty_set = file("${CWD}/src/results/empty_set.py")
         """
-        python $py_box_plots --csv_file $concatenated_exp
-        python $py_fdr_control --csv_file $concatenated_exp
-        python $py_empty_set --csv_file $concatenated_exp
+        python $py_box_plots --csv_file $concatenated_exp 
+        python $py_fdr_control --csv_file $concatenated_exp --kernels 0 --name normal
+        python $py_fdr_control --csv_file $concatenated_exp --kernels 1 --name kernel
+        python $py_empty_set --csv_file $concatenated_exp --kernels 0 --name normal
+        python $py_empty_set --csv_file $concatenated_exp --kernels 1 --name kernel
         """
 }

@@ -19,6 +19,9 @@ from . import association_measures as am
 available_am = [
     "PC", "DC", "TR", "HSIC", "MMD", "pearson_correlation"
 ]
+kernel_am = [
+    "HSIC", "MMD"
+]
 available_kernels = ["distance", "gaussian", "linear"]
 
 class KnockOff(BaseEstimator, TransformerMixin):
@@ -50,7 +53,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
     def compute_assoc(self, x, y):
 
         args = {}
-        if self.measure_stat in ["HSIC", "MMD"]:
+        if self.measure_stat in kernel_am:
             args['kernel'] = self.kernel
             args['normalised'] = self.normalised
 
@@ -126,15 +129,6 @@ class KnockOff(BaseEstimator, TransformerMixin):
             self.compute_assoc,
             prescreened=screen_scores
         )
-
-        print("###############################")
-        print("###############################")
-        print("For debuging purposes")
-        print(f"{self.wjs_=}")
-        print(f"{self.A_d_hat_=}")
-        print(f"N positive: {(self.wjs_ > 0).sum()} N negative: {(self.wjs_ < 0).sum()}")
-        print("###############################")
-        print("###############################")
 
         self.alpha_indices_, self.t_alpha_, self.n_features_out_ = self.alpha_threshold(self.alpha)
 
@@ -251,22 +245,3 @@ def threshold_alpha(Ws, w_indice, alpha):
         t_alpha_min = min(ts[t_alpha])
     indices = w_indice[np.where(Ws >= t_alpha_min)[0]]
     return indices, t_alpha
-
-
-    # def fraction_3_6(t):
-    #     num = (Ws <= -abs(t)).sum() + 1
-    #     den = max((Ws >= abs(t)).sum(), 1)
-    #     is_below_alpha = (num / den) <= alpha
-    #     if is_below_alpha:
-    #         return abs(t)
-    #     else:
-    #         return t_max
-    # print(ts)
-    # t_alpha_list_value = list(map(fraction_3_6_v, ts))
-    # print(t_alpha_list_value)
-    # t_alpha_list = list(map(fraction_3_6, ts))
-    # t_alpha = min(t_alpha_list)
-    
-    # if t_max == t_alpha:
-    #     t_alpha = np.inf
-    # return indices, t_alpha
