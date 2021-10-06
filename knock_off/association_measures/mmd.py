@@ -2,9 +2,8 @@ import numpy as np
 
 from .kernel_tools import get_kernel_function, compute_distance_matrix
 
-def calibrate_sigma_mmd(x, y):
-    flat = np.concatenate([x.flatten(), y.flatten()], axis=0)
-    result = np.median(compute_distance_matrix(flat))
+def calibrate_sigma_mmd(x):
+    result = np.median(compute_distance_matrix(x.flatten()))
     return 0.5 * result
 
 def indexes_with_respect_to_y(Y):
