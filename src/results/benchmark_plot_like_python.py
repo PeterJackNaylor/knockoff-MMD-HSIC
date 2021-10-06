@@ -5,12 +5,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-from colors import color_dictionnary
+from colors import color_dictionnary_fdr, color_dictionnary_fdr_keys, name_mapping_fdr
 
 def options():
     # options
     parser = argparse.ArgumentParser(description="Knock off run")
     parser.add_argument("--csv_file", type=str)
+    parser.add_argument("--kernels", type=int, default=0)
+    parser.add_argument("--name", type=str, default="")
     args = parser.parse_args()
 
     return args
@@ -44,7 +46,7 @@ def main():
     for data in list(datasets):
         table_data = table.loc[table['DATASET'] == data]
 
-        groups = table_data.groupby(["n", "p", "AM", "kernel", "normalise"])
+        groups = table_data.groupby(["n", "p", "AM", "normalise", "kernel"])
         fig = make_subplots(rows=3, cols=3,
                             shared_xaxes=True,
                             shared_yaxes=True,
@@ -53,14 +55,20 @@ def main():
                             subplot_titles=titles,
                             x_title="<i>&#945;</i>",#, 'font': {'size': 0}},
                             y_title='<i>FDR</i>')
-        legend = {el: True for el in color_dictionnary.keys()}
+        legend = {el: True for el in color_dictionnary_fdr_keys}
 
         for g_n, group in groups:
-            if g_n[2] not in ["PC", "DC", "TR", "pearson_correlation"]:
-                s1 = "" if g_n[4] == 0 else "_norm"
-                name = g_n[2] + "_" + g_n[3] + s1
+
+            name = g_n[2]
+            kernel = g_n[4]
+            normalised = g_n[3] == 1
+            only_kernel = opt.kernels == 1
+            if only_kernel:
+                if name not in ["HSIC", "MMD"]:
+                    continue
             else:
-                name = g_n[2]
+                if name in ["HSIC", "MMD"] and kernel != "gaussian":
+                    continue
 
             alpha_group = group.groupby(['alpha'])
             mean = alpha_group.mean()
@@ -73,18 +81,20 @@ def main():
             x = mean.index.sort_values()
             y = mean.loc[x, "fdr"]
             err = 1.96 * std.loc[x, "fdr"] / (sample_number.loc[x, "fdr"]) ** 0.5
+            curve_name = name_mapping_fdr(name, kernel, normalised)
+
             curve = go.Scatter(
                 x=x,
                 y=y,
-                name=f"{name}",
+                name=curve_name,
                 error_y=dict(
                     array=err),
                 marker=dict(
-                    color=color_dictionnary[name]
+                    color=color_dictionnary_fdr(name, kernel, normalised, only_kernel=only_kernel)
                 ),
-                showlegend=legend[name])
-            if legend[name]:
-                legend[name] = False
+                showlegend=legend[curve_name])
+            if legend[curve_name]:
+                legend[curve_name] = False
             fig.add_trace(curve, row=row_dic[p], col=col_dic[n])
             fig.add_trace(go.Scatter(
                             x=id_,
@@ -115,7 +125,8 @@ def main():
             x=0.75,
             y=0.95
         ))
-        fig.write_html(f"{data}_fdr_controls.html")
+        
+        fig.write_html(f"{data}_fdr_controls_{opt.name}.html")
 
 if __name__ == "__main__":
     main()

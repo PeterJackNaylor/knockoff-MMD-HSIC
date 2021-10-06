@@ -1,11 +1,12 @@
 
 import argparse
+from textwrap import fill
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-from colors import color_dictionnary, positions
+from colors import inside_colors, color_dictionnary, positions, name_mapping
 
 def options():
     # options
@@ -30,7 +31,7 @@ titles = tuple(f"<b> {text} </b>" if text != "" else text for text in \
 
 tikz_y = [0, 0.25, 0.5, 0.75, 1.0]
 tikz_text_y = ["0.00", "0.25", "0.50", "0.75", "1.00"]
-
+kernel_methods = ["HSIC", "MMD", "MMD_bis"]
 
 
 def main():
@@ -43,7 +44,7 @@ def main():
     table = table.loc[table["alpha"] == 0.5]
     table = table.loc[table['DATASET'] != 0]
     datasets = np.unique(table['DATASET'])
-
+    kernels = list(np.unique(table['kernel']))
     for data in list(datasets):
         table_data = table.loc[table['DATASET'] == data]
         groups = table_data.groupby(["n", "p", "AM", "kernel", "normalise"])
@@ -56,33 +57,65 @@ def main():
                             subplot_titles=titles,
                             x_title="",#, 'font': {'size': 0}},
                             y_title='<i>Minimum model size</i>')
-        legend = {el: True for el in color_dictionnary.keys()}
-
+        legend = []
         for g_n, group in groups:
-            if g_n[2] not in ["PC", "DC", "TR", "pearson_correlation"]:
-                s1 = "" if g_n[4] == 0 else "_norm"
-                name = g_n[2] + "_" + g_n[3] + s1
+
+
+            name = g_n[2]
+            kernel = g_n[3]
+            normalised = g_n[4] == 1
+            suf = "_norm" if normalised else ""
+            if normalised:
+                continue
+
+            fill_color = None if name not in kernel_methods else inside_colors[kernel]
+
+            if (name, normalised) in legend:
+                display_legend = False
             else:
-                name = g_n[2]
+                display_legend = True
+                legend.append((name, normalised))
+
             n = int(g_n[0])
             p = int(g_n[1])
 
             size_model = np.array(group["k0"])
 
+            hover_name = name_mapping(name, kernel, normalised)
+            hover_name = hover_name if name not in kernel_methods else hover_name + f"({kernel})"
+            
             boxes = go.Box(
                         y=size_model,
-                        name=f"{name}",
-                        marker_color=color_dictionnary[name],
-                        showlegend=legend[name],
+                        name=hover_name,
+                        marker_color=color_dictionnary[name + suf],
+                        fillcolor=fill_color,
+                        showlegend=False,
                         boxmean=True,
-                        boxpoints=False
+                        boxpoints=False,
+                        marker_size=2
                     )
 
-            if legend[name]:
-                legend[name] = False
-
             fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
+            if display_legend:
+                fill_color = color_dictionnary[name + suf].replace("rgb", "rgba").replace(")", ",0.5)") if name not in ["HSIC", "MMD"] else "rgb(255,255,255)"
 
+                boxes = go.Scatter(
+                        x=[None],
+                        y=[None],
+                        name=name_mapping(name, kernel, normalised),
+                        mode="markers",
+                        marker_color=fill_color,
+                        marker=dict(size=12,
+                              line=dict(width=2,
+                                        color=color_dictionnary[name + suf])),
+                        #marker_color=fill_color,
+                        # fillcolor=fill_color,
+                        marker_symbol="square",
+                        showlegend=True,
+                        marker_size=15
+                    )
+
+                fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
         fig.update_layout(template="ggplot2", legend_title_text='Algorithm',
                     title={
                         'text': f"Dataset: {data}".replace("_", " "),
@@ -91,7 +124,19 @@ def main():
                     font=dict(
                         size=22
                     ))
-        
+        for kernel in kernels:
+            fig.add_trace(go.Scatter(
+                x=[None],
+                y=[None],
+                legendgroup="group2",
+                legendgrouptitle_text="Kernel",
+                name=kernel.capitalize(),
+                marker_symbol="square",
+                mode="markers",
+
+                marker=dict(color=inside_colors[kernel], size=10)
+            ), row=1, col=1)
+
         # fig.layout.annotations[-2]["font"] = {'size': 30}
         fig.layout.annotations[-1]["xshift"] -= 15
         fig.layout.annotations[-1]["font"] = {'size': 22}
@@ -101,6 +146,7 @@ def main():
             x=0.75,
             y=0.95
         ))
+        
         fig.write_html(f"{data}_minimum_model_size--box_plots.html")
 
 if __name__ == "__main__":
