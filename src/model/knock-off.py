@@ -24,7 +24,7 @@ def top_k(wjs, S):
 def determine_covariate(dataset):
     if dataset in ["model_0", "model_2a", "model_2b", "model_2c", "model_2d"]:
         correct_covariates = [0, 1, 2, 3]
-    elif dataset in ["model_4a", "model_4b", "model_5a", "model_5b", "model_5c"]:
+    elif dataset in ["model_4a", "model_4b", "model_5a", "model_5b", "model_5c", "model_6a"]:
         correct_covariates = list(range(10))
     else:
         correct_covariates = []
