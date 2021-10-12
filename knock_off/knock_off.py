@@ -37,7 +37,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
     def __init__(
         self, alpha: float = 1.0,
         measure_stat: str = "PC",
-        kernel: str = "gaussian",
+        kernel: str = "linear",
         normalised: bool = False,
         normalise_input: bool = True
     ) -> None:

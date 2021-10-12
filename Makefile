@@ -17,6 +17,9 @@ simulation-cluster:
 test: $(SINGULARITY_IMG)
 	singularity exec $(SINGULARITY_IMG) /bin/bash -c "cd ${PWD}; $(ENV); pytest test"
 
+real-world:
+	nextflow src/knock-off_real_data.nf
+
 .PHONY: clean test
 
 clean:

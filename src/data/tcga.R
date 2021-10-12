@@ -28,13 +28,15 @@ y <- as.integer(sample_type[samples_keep] == "Primary Tumor") * 2 - 1
 genes <- rowData(data)$external_gene_name
 
 # balance samples
-samples_per_class <- min(table(y))
+if (FALSE) {
+    samples_per_class <- min(table(y))
 
-X0 <- X[y == -1,][1:samples_per_class,]
-X1 <- X[y == 1,][1:samples_per_class,]
-X <- rbind(X0, X1)
+    X0 <- X[y == -1,][1:samples_per_class,]
+    X1 <- X[y == 1,][1:samples_per_class,]
+    X <- rbind(X0, X1)
 
-y <- c(rep(-1, samples_per_class), rep(1, samples_per_class))
+    y <- c(rep(-1, samples_per_class), rep(1, samples_per_class))
+}
 
 np <- import("numpy")
 np$savez("Xy.npz", X=X, Y=y, genes=genes)
