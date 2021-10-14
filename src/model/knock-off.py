@@ -113,6 +113,11 @@ def main():
     print("Starting fit process")
     model.fit(X, y, n1=opt.n_1, d=opt.d)
     print("Fit process finished")
+    
+    pd_features = DataFrame({'AM': opt.t,
+                             'feature': model.A_d_hat_,
+                             'wj': model.wjs_})
+    pd_features.to_csv("wjs.csv", index=False)
 
     # Get minimum model size containing true features
     k0 = minimum_model_size_including_active(model, dataset=opt.param_d["DATASET"])

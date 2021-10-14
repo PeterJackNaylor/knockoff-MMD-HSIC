@@ -12,11 +12,11 @@ def get_X(num):
     
     return X
 
-threes = get_X(3)[:6131,]
-sevens = get_X(7)[:6131,]
+threes = get_X(3)[:500,]
+sevens = get_X(7)[:500,]
 
-assert threes.shape == (6131, 784)
-assert sevens.shape == (6131, 784)
+assert threes.shape == (500, 784)
+assert sevens.shape == (500, 784)
 
 X = np.concatenate((threes, sevens), axis=0)
 X = (X - X.mean()) / X.std()
