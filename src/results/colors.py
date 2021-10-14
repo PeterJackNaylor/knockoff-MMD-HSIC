@@ -4,15 +4,14 @@ kernel_fdr = {
 }
 
 color_dictionnary = {
-        "MMD": "rgb(51,160,44)",
-        "MMD_norm": "rgb(178, 223, 138)",
-        "HSIC": "rgb(106,61,154)",
-        "HSIC_norm": "rgb(202,178,214)",
+        "MMD": "rgb(239,59,44)",
+        "HSIC": "rgb(107,174,214)",
+        "HSIC_norm":  "rgb(0,109,44)",
         "TR": "rgb(253,191,111)",
-        "pearson_correlation": "rgb(53,151,143)",
-        "PC": "rgb(227,26,28)",
+        "pearson_correlation": "rgb(106,61,154)",
+        "PC": "rgb(116,196,118)",
         "DC": "rgb(177,89,40)",
-        "MMD_bis": "rgb(255,255,153)"
+        # "MMD_norm": "rgb(178, 223, 138)",
         # "MMD_linear": "rgb(178, 223, 138)",
         # "MMD_linear_norm": "rgb(51,160,44)",
         # "MMD_distance": "rgb(166,206,227)",
@@ -31,20 +30,50 @@ color_dictionnary = {
         # "DC": "rgb(200,200,200)"
         }
 
+hector_color = {
+        "MMD(linear)": "rgb(165,15,21)",
+        "MMD(distance)": "rgb(252,187,161)",
+        "MMD(gaussian)": "rgb(239,59,44)",
+        "cMMD(linear)": "rgb(165,15,21)",
+        "cMMD(distance)": "rgb(252,187,161)",
+        "cMMD(gaussian)": "rgb(239,59,44)",
+        "HSIC(distance)": "rgb(198,219,239)",
+        "HSIC(linear)": "rgb(8,81,156)",
+        "HSIC(gaussian)": "rgb(107,174,214)",
+        # "MMD_norm": "rgb(178, 223, 138)",
+        # "HSIC": "rgb(31,120,180)",
+        "HSIC_norm":  "rgb(116,196,118)",
+        "TR": "rgb(253,191,111)",
+        "Pearson": "rgb(106,61,154)",
+        "PC": "rgb(116,196,118)",
+        "DC": "rgb(177,89,40)", 
+}
 
 kernel_colours = {
-        "MMD": {"linear": "rgb(161,217,155)",
-                "gaussian": "rgb(65,171,93)",
-                "distance": "rgb(0,90,50)"},
-        "MMD_norm": {"linear": "rgb(253,174,107)",
-                "gaussian": "rgb(241,105,19)",
-                "distance": "rgb(140,45,4)"},
-        "HSIC": {"linear": "rgb(188,189,220)",
-                "gaussian": "rgb(128,125,186)",
-                "distance": "rgb(74,20,134)"},
-        "HSIC_norm": {"linear": "rgb(198,219,239)",
-                "gaussian": "rgb(66,146,198)",
-                "distance": "rgb(8,69,148)"},
+        "MMD": {"linear": "rgb(165,15,21)",
+                "gaussian": "rgb(251,106,74)",
+                "distance": "rgb(252,187,161)"},
+        # "MMD_norm": {"linear": "rgb(198,219,239)",
+        #         "gaussian": "rgb(66,146,198)",
+        #         "distance": "rgb(8,69,148)"}, 
+        "HSIC": {"linear": "rgb(8,81,156)",
+                "gaussian": "rgb(107,174,214)",
+                "distance": "rgb(198,219,239)"},
+        "HSIC_norm": {"linear": "rgb(0,109,44)",
+                "gaussian": "rgb(116,196,118)",
+                "distance": "rgb(199,233,192)"},
+}
+
+mapping_data_name = {
+        "model_0": "1.a",
+        "model_4a": "1.b",
+        "model_4b": "1.c",
+        "model_2a": "2.a",
+        "model_2b": "2.b",
+        "model_5a": "2.c",
+        "model_5b": "3.a",
+        "model_5c": "3.b",
+        "model_6a": "3.c",
 }
 
 def color_dictionnary_fdr(name, kernel, normalised, only_kernel=True):
@@ -57,14 +86,16 @@ def color_dictionnary_fdr(name, kernel, normalised, only_kernel=True):
                 return color_dictionnary[name]
 
 inside_colors = {
-        "linear": "rgba(240,240,240,0.8)",
-        "gaussian": "rgba(178, 223, 138,0.5)",
-        "distance": "rgba(202,178,214,0.5)"
+        "linear": "rgb(37,37,37)", #"rgba(240,240,240,0.8)",
+        "gaussian":  "rgb(150,150,150)", #"rgba(178, 223, 138,0.8)",
+        "distance": "rgb(217,217,217)"#"rgba(202,178,214,0.8)"
 }
 
 def name_mapping(name, kernel, normed):
         if name in ["HSIC", "MMD"]:
                 s = "n" if normed else ""
+                if name == 'MMD':
+                        name = "cMMD"
                 return name + s
         elif name == "pearson_correlation":
                 return "Pearson"
@@ -74,6 +105,8 @@ def name_mapping(name, kernel, normed):
 def name_mapping_fdr(name, kernel, normed):
         if name in ["HSIC", "MMD"]:
                 s = "n" if normed else ""
+                if name == 'MMD':
+                        name = "cMMD"
                 return name + s + f" ({kernel})" 
         elif name == "pearson_correlation":
                 return "Pearson"

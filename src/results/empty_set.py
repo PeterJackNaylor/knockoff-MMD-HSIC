@@ -1,4 +1,5 @@
 
+import os
 import argparse
 import pandas as pd
 import plotly.express as px
@@ -64,17 +65,24 @@ def main():
             marker_color = kernel_colours[name_color][kernel]
         else:
             marker_color = color_dictionnary[name_color]
-        
-
+        if name == "pearson_correlation":
+            name = "Pearson"        
+        elif name == "MMD":
+            name = "cMMD"
         bars.append(go.Bar(x=alphas, y=missing['n'], name=name + s3 + s2, marker_color=marker_color))
     fig = go.Figure(bars)
-    fig.update_layout(
-    title="Conservativeness of the knock-off procedure",
+    fig.update_layout(template="ggplot2",
+    title=None,
     xaxis_title="<i>&#945;</i>",
     yaxis_title="% of empty sets",
-    legend_title="Association measure"
+    legend_title="",
+        font=dict(
+        size=18)
     )
 
+    if not os.path.exists("images"):
+        os.mkdir("images")
+    fig.write_image(f"images/empty_set_{opt.name}.png", width=1350, height=900)
     fig.write_html(f"empty_set_{opt.name}.html")
     
     # remove those which didn't select anything

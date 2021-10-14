@@ -6,8 +6,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-from colors import inside_colors, color_dictionnary, positions, name_mapping
-
+from colors import inside_colors, color_dictionnary, positions, name_mapping, hector_color, mapping_data_name
+import os
 def options():
     # options
     parser = argparse.ArgumentParser(description="Knock off run")
@@ -83,22 +83,27 @@ def main():
 
             hover_name = name_mapping(name, kernel, normalised)
             hover_name = hover_name if name not in kernel_methods else hover_name + f"({kernel})"
-            
+            fill_color = hector_color[hover_name]
             boxes = go.Box(
                         y=size_model,
                         name=hover_name,
-                        marker_color=color_dictionnary[name + suf],
+                        marker_color="black", #color_dictionnary[name + suf],
                         fillcolor=fill_color,
                         showlegend=False,
+                        boxpoints='suspectedoutliers',
                         boxmean=True,
-                        boxpoints=False,
+                        #boxpoints=False,
                         marker_size=2
                     )
 
             fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
             if display_legend:
-                fill_color = color_dictionnary[name + suf].replace("rgb", "rgba").replace(")", ",0.5)") if name not in ["HSIC", "MMD"] else "rgb(255,255,255)"
+                if name == "MMD":
+                    hover_name = "MMD(gaussian)"
 
+                elif name == "HSIC":
+                    hover_name = "HSIC(gaussian)"
+                fill_color = hector_color[hover_name]
                 boxes = go.Scatter(
                         x=[None],
                         y=[None],
@@ -107,7 +112,7 @@ def main():
                         marker_color=fill_color,
                         marker=dict(size=12,
                               line=dict(width=2,
-                                        color=color_dictionnary[name + suf])),
+                                        color="black")),
                         #marker_color=fill_color,
                         # fillcolor=fill_color,
                         marker_symbol="square",
@@ -116,9 +121,9 @@ def main():
                     )
 
                 fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
-        fig.update_layout(template="ggplot2", legend_title_text='Algorithm',
+        fig.update_layout(template="ggplot2", legend_title_text='Association measure',
                     title={
-                        'text': f"Dataset: {data}".replace("_", " "),
+                        'text': f"Dataset: {mapping_data_name[data]}",
                         'x': 0.85,
                         'y': 0.88},
                     font=dict(
@@ -147,7 +152,10 @@ def main():
             y=0.95
         ))
         
-        fig.write_html(f"{data}_minimum_model_size--box_plots.html")
+        if not os.path.exists("images"):
+            os.mkdir("images")
+        fig.write_image(f"images/{mapping_data_name[data].replace('.', '_')}_minimum_model_size--box_plots.png", width=1350, height=900)
+        fig.write_html(f"{mapping_data_name[data].replace('.', '_')}_minimum_model_size--box_plots.html")
 
 if __name__ == "__main__":
     main()

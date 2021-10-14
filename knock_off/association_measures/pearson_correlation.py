@@ -10,7 +10,7 @@ def pearson_correlation(X, Y):
     pearson_stats = np.zeros((d, 1))
     for i in range(d):
         try:
-            pearson_stats[i] = np.array([np.float32(pearsonr(X[:, i], Y[:, 0])[0])])
+            pearson_stats[i] = np.array([np.float32(abs(pearsonr(X[:, i], Y[:, 0])[0]))])
         except:
             pearson_stats[i] = float('nan')
 
