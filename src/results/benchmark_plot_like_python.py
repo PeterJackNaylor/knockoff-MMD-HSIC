@@ -1,11 +1,11 @@
-
+import os
 import argparse
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-from colors import color_dictionnary_fdr, color_dictionnary_fdr_keys, name_mapping_fdr
+from colors import color_dictionnary_fdr, color_dictionnary_fdr_keys, name_mapping_fdr, mapping_data_name
 
 def options():
     # options
@@ -107,15 +107,15 @@ def main():
                             showlegend=False
                         ),
                         row=row_dic[p], col=col_dic[n])
-        fig.update_layout(template="ggplot2", legend_title_text='Algorithm',
+        fig.update_layout(template="ggplot2", legend_title_text='Association measure:',
                     title={
-                        'text': f"Dataset: {data}".replace("_", " "),
+                        'text': f"Dataset: {mapping_data_name[data]}",
                         'x': 0.85,
                         'y': 0.88},
                     font=dict(
                         size=22
                     ))
-        
+
         fig.layout.annotations[-2]["font"] = {'size': 30}
         fig.layout.annotations[-1]["xshift"] -= 15
         fig.layout.annotations[-1]["font"] = {'size': 22}
@@ -126,7 +126,11 @@ def main():
             y=0.95
         ))
         
-        fig.write_html(f"{data}_fdr_controls_{opt.name}.html")
+
+        if not os.path.exists("images"):
+            os.mkdir("images")
+        fig.write_image(f"images/{mapping_data_name[data].replace('.', '_')}_fdr_controls_{opt.name}.png", width=1350, height=900)
+        fig.write_html(f"{mapping_data_name[data].replace('.', '_')}_fdr_controls_{opt.name}.html")
 
 if __name__ == "__main__":
     main()
