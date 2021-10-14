@@ -14,7 +14,7 @@ def tr(X, Y):
     for i in range(d):
         tau = kendalltau(X[:, i], Y[:, 0]).correlation
         rho = spearmanr(X[:, i], b=Y[:, 0]).correlation
-        tr_stats[i] = 3 * tau  - 2 * rho
+        tr_stats[i] = abs(3 * tau  - 2 * rho)
 
     return  tr_stats
 

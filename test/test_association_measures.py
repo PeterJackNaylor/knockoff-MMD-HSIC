@@ -1,31 +1,33 @@
 import numpy as np
 from sklearn import metrics
 
-from knock_off.association_measures import distance_corr, projection_corr, tr, HSIC
-from knock_off.association_measures.mmd import MMD_v
+from knock_off.association_measures import distance_corr, projection_corr, tr, HSIC, MMD
 from knock_off.association_measures.kernel_tools import get_kernel_function
 
 np.random.seed(42)
 X = np.random.randn(10, 50)
 Y = np.random.randn(10, 1)
+Y_c = np.random.randint(0, 2, size=10)
 
 x = np.array([35, 23, 47, 17, 10, 43, 9, 6, 28]).reshape(9, 1)
 y = np.array([30, 33, 45, 23, 8, 49, 12, 4, 31]).reshape(9, 1)
+y_c = np.array([0, 0, 0, 1, 1, 0, 1, 1, 0]).reshape(9, 1)
 
 # reference implementation from https://github.com/jenninglim/multiscale-features/blob/master/mskernel/hsic.py
-def ref_hsic(X, Y, d):
+def ref_hsic(X, Y, kernel, sigma):
     """
     From: https://github.com/wittawatj/fsic-test/blob/master/fsic/indtest.py
     Compute the biased estimator of HSIC as in Gretton et al., 2005.
     :param k: a Kernel on X
     :param l: a Kernel on Y
     """
+
     if X.shape[0] != Y.shape[0]:
         raise ValueError('X and Y must have the same number of rows (sample size')
 
     n = X.shape[0]
 
-    kernel, kernel_params = get_kernel_function('gaussian', nfeats=d)
+    kernel, kernel_params = get_kernel_function(kernel, nfeats=sigma)
 
     K = kernel(X, **kernel_params)
     L = kernel(Y, **kernel_params)
@@ -39,30 +41,6 @@ def ref_hsic(X, Y, d):
     hsic = HKf.dot(HLf)
 
     return hsic
-
-# reference implementation https://github.com/jenninglim/multiscale-features/blob/master/mskernel/mmd.py
-def ref_mmd(X, Y, d):
-
-
-    if X.shape[0] != Y.shape[0]:
-        raise ValueError('X and Y must have the same number of rows (sample size')
-
-    X = X / np.linalg.norm(X)
-    Y = Y / np.linalg.norm(Y)
-    
-    n = X.shape[0]
-
-    gamma =  0.5 / d
-
-    XX = metrics.pairwise.rbf_kernel(X, X, gamma)
-    YY = metrics.pairwise.rbf_kernel(Y, Y, gamma)
-    XY = metrics.pairwise.rbf_kernel(X, Y, gamma)
-    # np.fill_diagonal(XX, 0)
-    # np.fill_diagonal(YY, 0)
-    # np.fill_diagonal(XY, 0)
-    return (XX.mean() + YY.mean() - XY.mean() - XY.T.mean())
-
-
 
 def test_distance_correlation():
     # sanity check
@@ -79,7 +57,6 @@ def test_projection_correlation():
     stats = projection_corr(X, Y)
     assert len(stats) == X.shape[1]
 
-    ## TODO This one has not been checked.
     pc_ = projection_corr(x, y)
     ans = 0.65911018 
     np.testing.assert_almost_equal(pc_, ans)
@@ -99,11 +76,11 @@ def test_tr_measure():
 
 
 def test_hsic():
-    hsic = HSIC(X, Y, sigma=50)
+    hsic = HSIC(X, Y, kernel="gaussian", sigma=50) / X.shape[0] ** 2 
 
     ref = np.zeros((50, 1))
     for i in range(50):
-        ref[i] = ref_hsic(X[:,i].reshape(10,1), Y, 50)
+        ref[i] = ref_hsic(X[:,i].reshape(10,1), Y, kernel="gaussian", sigma=50)
 
     assert len(hsic) == X.shape[1]
     assert all(hsic >= 0)
@@ -111,7 +88,7 @@ def test_hsic():
     np.testing.assert_almost_equal(ref, hsic)
 
     # I got 0.09954543 with a R method..
-    hsic_ = HSIC(x, y, sigma=1)
+    hsic_ = HSIC(x, y, sigma=1) / x.shape[0] ** 2 
     ans = 0.09528812
     np.testing.assert_almost_equal(ans, hsic_)
 
@@ -119,28 +96,23 @@ def test_hsic():
     assert np.all(HSIC(x_2, x_2**2) > hsic)
 
 def test_mmd():
-    mmd = MMD_v(X, Y, input_norm=True, sigma=1)
-
-    ref = np.zeros((50, 1))
-    for i in range(50):
-        ref[i] = ref_mmd(X[:,i].reshape(10,1), Y, 1)
-
+    mmd = MMD(X, Y, kernel='gaussian', normalised=False, sigma=None)
 
     assert len(mmd) == X.shape[1]
     assert all(mmd >= 0)
-    np.testing.assert_almost_equal(ref, mmd)
 
 
     ## tested against https://github.com/AnthonyEbert/EasyMMD
     ## MMD(x, y) gave -0.03217994 with the R package , but that was U-stat
     ## this test is currently failing
-    mmd_ = MMD_v(x, y, input_norm=True)
-    ans = 0.3937592
+    mmd_ = MMD(x, y_c, kernel='gaussian', normalised=False, sigma=None)
+    ans = 0.2819887
     np.testing.assert_almost_equal(mmd_, ans)
 
 
     x_2 = np.random.rand(10, 1)
-    assert np.all(MMD_v(x_2, x_2**2) > mmd)
+    y_2 = np.random.randint(0, 2, size=(10,1))
+    assert np.all(MMD(x_2**2, y_2) >  MMD(x_2, y_2))
 
 
 
@@ -157,3 +129,16 @@ def test_kernelfunction():
         assert (Kx <= 1).all()
         assert (Kxy >= 0).all()
         assert (Kxy <= 1).all()
+
+def test_positive():
+    am = [HSIC, tr, distance_corr, projection_corr]
+    
+    for _ in range(10):
+        X = np.random.randn(10, 50)
+        Y = np.random.randn(10, 1)
+        Y_c = np.random.randint(0, 2, size=(10, 1))
+        for m in am:
+            if not np.all(m(X, Y) > 0):
+                print(m)
+                assert False
+        assert np.all(MMD(X, Y_c) > 0)
