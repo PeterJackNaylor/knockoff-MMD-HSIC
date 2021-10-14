@@ -9,7 +9,7 @@ def pearson_correlation(X, Y):
     assert nd == 1
     pearson_stats = np.zeros((d, 1))
     for i in range(d):
-        pearson_stats[i] = np.array([np.float32(pearsonr(X[:, i], Y[:, 0])[0])])
+        pearson_stats[i] = np.array([np.float32(abs(pearsonr(X[:, i], Y[:, 0])[0]))])
 
 
     return pearson_stats
