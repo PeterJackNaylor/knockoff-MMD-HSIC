@@ -1,6 +1,6 @@
-
 import numpy as np
 from simulations_X import options, produce_synthetic_data
+
 
 def formula(x, n=None):
     if n is None:
@@ -8,6 +8,7 @@ def formula(x, n=None):
 
     eps = np.random.normal(loc=0.0, scale=1.0, size=n)
     y_star = x[:, 0:10].sum(axis=1) + 10 ** 0.5 + eps
+
     def f(x):
         if x < 0:
             y = 0
@@ -25,11 +26,13 @@ def formula(x, n=None):
 
     y = np.vectorize(f)(y_star)
 
-    return y 
+    return y
+
 
 def main():
     opt = options()
     produce_synthetic_data(opt.n, opt.p, formula, correlated=True)
+
 
 if __name__ == "__main__":
     main()

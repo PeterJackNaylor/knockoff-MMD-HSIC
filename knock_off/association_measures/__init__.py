@@ -8,5 +8,10 @@ from .distance_correlation import distance_corr
 
 # https://github.com/vnmabus/dcor
 __all__ = [
-    "projection_corr", "tr", "distance_corr", "HSIC", "MMD", "pearson_correlation"
+    "projection_corr",
+    "tr",
+    "distance_corr",
+    "HSIC",
+    "MMD",
+    "pearson_correlation",
 ]

@@ -27,7 +27,7 @@ train_index, test_index = next(islice(skf.split(X, y), split, None))
 X_train, X_test = X[train_index], X[test_index]
 y_train, y_test = y[train_index], y[test_index]
 
-#np.savez("Xy_train.npz", X=X_train, Y=y_train, genes=genes)
-#np.savez("Xy_test.npz", X=X_test, Y=y_test, genes=genes)
+# np.savez("Xy_train.npz", X=X_train, Y=y_train, genes=genes)
+# np.savez("Xy_test.npz", X=X_test, Y=y_test, genes=genes)
 np.savez("Xy_train.npz", X=X_train, Y=y_train)
 np.savez("Xy_test.npz", X=X_test, Y=y_test)
