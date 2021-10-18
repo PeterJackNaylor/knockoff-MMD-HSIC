@@ -36,7 +36,7 @@ titles = tuple(
 
 tikz_y = [0, 0.25, 0.5, 0.75, 1.0]
 tikz_text_y = ["0.00", "0.25", "0.50", "0.75", "1.00"]
-kernel_methods = ["HSIC", "MMD", "MMD_bis"]
+kernel_methods = ["HSIC", "cMMD"]
 
 
 def main():
@@ -110,9 +110,8 @@ def main():
 
             fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
             if display_legend:
-                if name == "MMD":
-                    hover_name = "MMD(gaussian)"
-
+                if name == "cMMD":
+                    hover_name = "cMMD(gaussian)"
                 elif name == "HSIC":
                     hover_name = "HSIC(gaussian)"
                 fill_color = hector_color[hover_name]

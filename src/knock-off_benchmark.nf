@@ -8,14 +8,15 @@ params.repeats = 1
 
 if (params.full == 'true'){
     DATASETS = [
-        "model_0",
+        "model_1a",
+        "model_1b",
+        "model_1c",
         "model_2a",
         "model_2b",
-        "model_4a",
-        "model_4b",
-        "model_5a",
-        "model_5b",
-        "model_5c"
+        "model_2c",
+        "model_3a",
+        "model_3b",
+        "model_3c",
     ] //"model_2c", "model_2d"
 
     ASSOCIATION_MEASURES = [
@@ -23,7 +24,7 @@ if (params.full == 'true'){
         "TR",
         "pearson_correlation",
         "HSIC",
-        "MMD",
+        "cMMD",
         "PC"
     ]
     KERNELS = ['linear', 'distance', 'gaussian']
@@ -34,15 +35,20 @@ if (params.full == 'true'){
     NORMALIZE = [0]
 }
 else {
-    DATASETS = ["model_6a"]
+    DATASETS = ["model_3a"]
     ASSOCIATION_MEASURES = [
-        "MMD" // "PC"
+        "DC",
+        "TR",
+        "pearson_correlation",
+        "HSIC",
+        "cMMD",
+        //"PC"
     ]
-    KERNELS = ['linear', 'distance', 'gaussian']
-    sample_size = [500]
+    KERNELS = ['gaussian']
+    sample_size = [100, 500, 1000]
     // d depends mostly on n
-    associated_d = ['100': 50, '500': 300, '200': 90]
-    feature_size = [5e2]
+    associated_d = ['100': 50, '500': 300, '1000': 100]
+    feature_size = [5e2, 5e3]
     NORMALIZE = [0]
 }
 
@@ -51,13 +57,13 @@ KERNELLESS_AM = [
 ]
 
 BINARY_AM = [
-    "MMD"
+    "cMMD"
 ]
 
 BINARY_MODELS = [
-    "model_5b",
-    "model_5c",
-    "model_6a"
+    "model_3a",
+    "model_3b",
+    "model_3c"
 ]
 
 
@@ -95,7 +101,7 @@ process knock_off {
         MMD_and_BINARY = (PARAMS.split(';')[0].split('=')[1] in BINARY_MODELS) || (!(T in BINARY_AM))
         AM_NO_KERNEL = ((k == "linear") && (normalise == 0)) || (!(T in KERNELLESS_AM))
         MMD_and_BINARY && AM_NO_KERNEL
-        // MMD needs binary data
+        // cMMD needs binary data
         // only the kernel AM need normalise and kernel looping
     script:
         feature_size = PARAMS.split(';')[1].split('=')[1]
@@ -116,11 +122,12 @@ FDR.collectFile(skip: 1, keepHeader: true)
 
 
 process plots_and_simulation_results {
-    publishDir "./outputs/vanilla/simulations_results", mode: 'copy', overwrite: 'true'
+    publishDir "./outputs/simulations_results", mode: 'copy', overwrite: 'true'
     input:
         file concatenated_exp from ALL_FDR
     output:
         set file("*.html"), file("$concatenated_exp")
+        file("images")
     script:
         py_box_plots = file("${CWD}/src/results/box_plots.py")
         py_fdr_control = file("${CWD}/src/results/benchmark_plot_like_python.py")

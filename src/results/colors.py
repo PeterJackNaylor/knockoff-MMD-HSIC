@@ -1,5 +1,5 @@
 color_dictionnary = {
-    "MMD": "rgb(239,59,44)",
+    "cMMD": "rgb(239,59,44)",
     "HSIC": "rgb(107,174,214)",
     "HSIC_norm": "rgb(0,109,44)",
     "TR": "rgb(253,191,111)",
@@ -9,9 +9,6 @@ color_dictionnary = {
 }
 
 hector_color = {
-    "MMD(linear)": "rgb(165,15,21)",
-    "MMD(distance)": "rgb(252,187,161)",
-    "MMD(gaussian)": "rgb(239,59,44)",
     "cMMD(linear)": "rgb(165,15,21)",
     "cMMD(distance)": "rgb(252,187,161)",
     "cMMD(gaussian)": "rgb(239,59,44)",
@@ -26,7 +23,7 @@ hector_color = {
 }
 
 kernel_colours = {
-    "MMD": {
+    "cMMD": {
         "linear": "rgb(165,15,21)",
         "gaussian": "rgb(251,106,74)",
         "distance": "rgb(252,187,161)",
@@ -76,10 +73,8 @@ inside_colors = {
 
 
 def name_mapping(name, kernel, normed):
-    if name in ["HSIC", "MMD"]:
+    if name in ["HSIC", "cMMD"]:
         s = "n" if normed else ""
-        if name == "MMD":
-            name = "cMMD"
         return name + s
     elif name == "pearson_correlation":
         return "Pearson"
@@ -88,10 +83,8 @@ def name_mapping(name, kernel, normed):
 
 
 def name_mapping_fdr(name, kernel, normed):
-    if name in ["HSIC", "MMD"]:
+    if name in ["HSIC", "cMMD"]:
         s = "n" if normed else ""
-        if name == "MMD":
-            name = "cMMD"
         return name + s + f" ({kernel})"
     elif name == "pearson_correlation":
         return "Pearson"

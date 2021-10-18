@@ -1,6 +1,7 @@
 name: knockoff
 channels:
   - defaults
+  - bioconda
 dependencies:
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=4.5=1_gnu
@@ -28,6 +29,9 @@ dependencies:
   - r-plotly
   - r-tidyverse
   - r-htmlwidgets
+  - r-reticulate
+  - bioconductor-summarizedexperiment 
+  - bioconductor-TCGAbiolinks
   - pip:
     - attrs==21.2.0
     - dcor==0.5.3

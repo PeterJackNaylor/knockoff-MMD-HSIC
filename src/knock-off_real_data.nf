@@ -4,29 +4,55 @@
 // It may need train/test split if we need to check the prediciton.
 params.repeats = 1
 params.splits = 8
-ASSOCIATION_MEASURES = ["DC", "HSIC", "MMD", "PC", "TR", "pearson_correlation"]
-CWD = System.getProperty("user.dir")
-DATASETS = ['MNIST.py']
-// DATASETS = ['tcga.R']
-// PHENOTYPES = ['BRCA']
 
+ASSOCIATION_MEASURES = [
+    //"DC",
+    //"HSIC",
+    //"cMMD",
+    //"PC",
+    "TR",
+    //"pearson_correlation"
+]
+
+CWD = System.getProperty("user.dir")
+
+DATASETS = [
+    'MNIST.py',
+    "tcga.R"
+]
+
+PHENOTYPES = [
+    'BRCA'
+]
 
 process data {
 
-    tag "DATASET=${data_name}"
-    // tag "DATASET=${data_name}-${phenotype}"
+    tag "DATASET=${tag}"
+    container 'file://./env/container_R_img.sif'
 
     input:
         val data_name from DATASETS
-        // each phenotype from PHENOTYPES
+        each phenotype from PHENOTYPES
+
     output:
-        set val("DATASET=${data_name}"), file("Xy.npz") into XY
-        // set val("DATASET=${data_name}-${phenotype}"), file("Xy.npz") into XY
+        set val("DATASET=${tag}"), file("Xy.npz") into XY
+
+    when:
+        (phenotype == 'BRCA') || (data_name == "tcga.R")
+
     script:
         dl_file = file("${CWD}/src/data/${data_name}")
-        """
-        $dl_file
-        """
+        if (data_name == "tcga.R"){
+            tag = "${data_name}-${phenotype}"
+            """
+            $dl_file $phenotype
+            """
+        } else {
+            tag = "${data_name}}"
+            """
+            python3 $dl_file 
+            """
+        }
 }
 
 process split_data {
@@ -65,7 +91,6 @@ process knock_off {
                         --xy $Xy_train
         """
 }
-
 
 process classify {
 

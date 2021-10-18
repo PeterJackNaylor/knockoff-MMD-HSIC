@@ -1,7 +1,7 @@
 from .projection_correlation import projection_corr
 from .tr import tr
 from .hsic import HSIC
-from .mmd import MMD
+from .cmmd import cMMD
 from .pearson_correlation import pearson_correlation
 from .distance_correlation import distance_corr
 
@@ -12,6 +12,6 @@ __all__ = [
     "tr",
     "distance_corr",
     "HSIC",
-    "MMD",
+    "cMMD",
     "pearson_correlation",
 ]
