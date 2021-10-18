@@ -108,7 +108,7 @@ ACCURACIES.collectFile(skip: 1, keepHeader: true)
    
 process output {
     
-    publishDir "./outputs/real_world/mnist", mode: 'copy', overwrite: 'true'
+    publishDir "./outputs/real_world/", mode: 'copy', overwrite: 'true'
 
     input:
         file concatenated_exp from ALL_ACCURACIES
