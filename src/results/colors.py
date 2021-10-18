@@ -8,7 +8,7 @@ color_dictionnary = {
     "DC": "rgb(177,89,40)",
 }
 
-hector_color = {
+precise_color_dictionnary = {
     "cMMD(linear)": "rgb(165,15,21)",
     "cMMD(distance)": "rgb(252,187,161)",
     "cMMD(gaussian)": "rgb(239,59,44)",

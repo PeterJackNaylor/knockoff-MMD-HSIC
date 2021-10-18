@@ -72,3 +72,9 @@ and to launch the pipeline on real data:
 make real_data
 ```
 
+# Results
+
+You should find the outputs in the folder:
+- `./outputs/simulations_results` for the simulation
+- `./outputs/mnist` for the MNIST dataset
+- `./outputs/tcga-BRCA` the tcga dataset on the BRCA phenotype.

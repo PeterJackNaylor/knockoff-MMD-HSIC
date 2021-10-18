@@ -1,10 +1,16 @@
+
+import os
 import argparse
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-from colors import inside_colors, name_mapping, hector_color, mapping_data_name
-import os
+from colors import (
+    inside_colors,
+    name_mapping,
+    precise_color_dictionnary,
+    mapping_data_name
+)
 
 
 def options():
@@ -95,7 +101,7 @@ def main():
 
             size_model = np.array(group["k0"])
 
-            fill_color = hector_color[hover_name]
+            fill_color = precise_color_dictionnary[hover_name]
             boxes = go.Box(
                 y=size_model,
                 name=hover_name,
@@ -114,7 +120,7 @@ def main():
                     hover_name = "cMMD(gaussian)"
                 elif name == "HSIC":
                     hover_name = "HSIC(gaussian)"
-                fill_color = hector_color[hover_name]
+                fill_color = precise_color_dictionnary[hover_name]
                 boxes = go.Scatter(
                     x=[None],
                     y=[None],
