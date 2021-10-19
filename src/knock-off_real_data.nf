@@ -1,17 +1,14 @@
 
-// This script has not been checked, but it should be
-// very similar to benchmark but with real data, therefor/
-// It may need train/test split if we need to check the prediciton.
 params.repeats = 1
 params.splits = 8
 
 ASSOCIATION_MEASURES = [
-    //"DC",
-    //"HSIC",
-    //"cMMD",
-    //"PC",
+    "DC",
+    "HSIC",
+    "cMMD",
+    "PC",
     "TR",
-    //"pearson_correlation"
+    "pearson_correlation"
 ]
 
 CWD = System.getProperty("user.dir")

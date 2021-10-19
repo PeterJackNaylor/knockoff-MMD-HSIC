@@ -17,7 +17,7 @@ if (params.full == 'true'){
         "model_3a",
         "model_3b",
         "model_3c",
-    ] //"model_2c", "model_2d"
+    ] //"model_2d", "model_2e"
 
     ASSOCIATION_MEASURES = [
         "DC",
@@ -42,7 +42,7 @@ else {
         "pearson_correlation",
         "HSIC",
         "cMMD",
-        //"PC"
+        "PC"
     ]
     KERNELS = ['gaussian']
     sample_size = [100, 500, 1000]
@@ -53,7 +53,10 @@ else {
 }
 
 KERNELLESS_AM = [
-    "DC", "PC", "TR", "pearson_correlation"
+    "DC",
+    "PC",
+    "TR",
+    "pearson_correlation"
 ]
 
 BINARY_AM = [

@@ -1,5 +1,5 @@
 # knockoff-MMD-HSIC
-Implementation of knockoff with MMD and HSIC. Paper submitted in AISTATS 2021: *Kernel knockoff for post selection screening* by Benjamin Poignard, Peter Naylor, Hector Climente-Gonzales and Makoto Yamada.
+Implementation of knockoff with MMD and HSIC. Paper submitted: *Kernel knockoff for post selection screening* by Benjamin Poignard, Peter Naylor, Hector Climente-Gonzales and Makoto Yamada.
 If you use our code, please cite the above paper.
 
 ## Reproducible results
