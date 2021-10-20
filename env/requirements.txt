@@ -5,3 +5,5 @@ pytest
 dcor
 plotly
 kaleido
+mnist
+notebook

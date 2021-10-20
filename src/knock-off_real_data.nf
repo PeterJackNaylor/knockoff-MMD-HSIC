@@ -25,7 +25,6 @@ PHENOTYPES = [
 process data {
 
     tag "DATASET=${tag}"
-    container 'file://./env/container_R_img.sif'
 
     input:
         val data_name from DATASETS

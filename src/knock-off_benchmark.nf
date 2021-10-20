@@ -42,9 +42,9 @@ else {
         "pearson_correlation",
         "HSIC",
         "cMMD",
-        "PC"
+        // "PC"
     ]
-    KERNELS = ['gaussian']
+    KERNELS = ['linear']
     sample_size = [100, 500, 1000]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
