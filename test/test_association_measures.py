@@ -1,7 +1,7 @@
 import numpy as np
 
 from knock_off.association_measures import (
-    distance_corr, projection_corr, tr, HSIC, MMD
+    distance_corr, projection_corr, tr, HSIC, cMMD
 )
 from knock_off.association_measures.kernel_tools import get_kernel_function
 
@@ -107,21 +107,19 @@ def test_hsic():
     assert np.all(HSIC(x_2, x_2 ** 2) > hsic)
 
 
-def test_mmd():
-    mmd = MMD(X, Y, kernel="gaussian", normalised=False, sigma=None)
+def test_cmmd():
+    cmmd = cMMD(X, Y, kernel="gaussian", sigma=None)
 
-    assert len(mmd) == X.shape[1]
-    assert all(mmd >= 0)
+    assert len(cmmd) == X.shape[1]
+    assert all(cmmd >= 0)
 
-    # tested against https://github.com/AnthonyEbert/EasyMMD
-    # MMD(x, y) gave -0.03217994 with the R package , but that was U-stat
-    mmd_ = MMD(x, y_c, kernel="gaussian", normalised=False, sigma=None)
+    mmd_ = cMMD(x, y_c, kernel="gaussian", sigma=None)
     ans = 0.2819887
     np.testing.assert_almost_equal(mmd_, ans)
 
     x_2 = np.random.rand(10, 1)
     y_2 = np.random.randint(0, 2, size=(10, 1))
-    assert np.all(MMD(x_2 ** 2, y_2) > MMD(x_2, y_2))
+    assert np.all(cMMD(x_2 ** 2, y_2) > cMMD(x_2, y_2))
 
 
 def test_kernelfunction():
@@ -151,4 +149,4 @@ def test_positive():
             if not np.all(m(X, Y) > 0):
                 print(m)
                 assert False
-        assert np.all(MMD(X, Y_c) > 0)
+        assert np.all(cMMD(X, Y_c) > 0)

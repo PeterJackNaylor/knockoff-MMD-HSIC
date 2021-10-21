@@ -1,9 +1,14 @@
 Bootstrap: docker
-From: python:3
-
+From: rocker/tidyverse
 
 %files
     requirements.txt .
     
 %post
+    apt-get update 
+    apt-get install -y --no-install-recommends python3.8 python3.8-dev curl
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    cp /usr/bin/python3.8 /usr/bin/python
+    python get-pip.py
     pip install -r requirements.txt
+    R --slave -e 'install.packages("BiocManager");BiocManager::install("SummarizedExperiment");BiocManager::install("TCGAbiolinks");install.packages("plotly");install.packages("reticulate")'

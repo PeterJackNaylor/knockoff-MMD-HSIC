@@ -1,7 +1,7 @@
 """
 Implementation of algorithm 1 of paper Model-Free Feature
 Screening and FDR Control with Knockoff Features with metrics
-PC, HSIC and MMD.
+PC, HSIC and cMMD.
 
 """
 
@@ -16,8 +16,8 @@ from .utils import build_knockoff, knock_off_check_parameters, screen
 from . import association_measures as am
 
 
-available_am = ["PC", "DC", "TR", "HSIC", "MMD", "pearson_correlation"]
-kernel_am = ["HSIC", "MMD"]
+available_am = ["PC", "DC", "TR", "HSIC", "cMMD", "pearson_correlation"]
+kernel_am = ["HSIC", "cMMD"]
 available_kernels = ["distance", "gaussian", "linear"]
 
 
@@ -53,7 +53,8 @@ class KnockOff(BaseEstimator, TransformerMixin):
         args = {}
         if self.measure_stat in kernel_am:
             args["kernel"] = self.kernel
-            args["normalised"] = self.normalised
+            if self.measure_stat == "HSIC":
+                args["normalised"] = self.normalised
 
         if self.normalise_input:
             x = x / np.linalg.norm(x, ord=2, axis=0)
@@ -143,9 +144,9 @@ class KnockOff(BaseEstimator, TransformerMixin):
         )
 
         alpha_thres = self.alpha_threshold(self.alpha)
-        self.alpha_indices_ = alpha_thres
-        self.t_alpha_ = alpha_thres
-        self.n_features_out_ = alpha_thres
+        self.alpha_indices_ = alpha_thres[0]
+        self.t_alpha_ = alpha_thres[1]
+        self.n_features_out_ = alpha_thres[2]
         return self
 
     def alpha_threshold(self, alpha):
@@ -223,8 +224,8 @@ class KnockOff(BaseEstimator, TransformerMixin):
             f = am.tr
         elif self.measure_stat == "HSIC":
             f = am.HSIC
-        elif self.measure_stat == "MMD":
-            f = am.MMD
+        elif self.measure_stat == "cMMD":
+            f = am.cMMD
         elif self.measure_stat == "DC":
             f = am.distance_corr
         elif self.measure_stat == "pearson_correlation":

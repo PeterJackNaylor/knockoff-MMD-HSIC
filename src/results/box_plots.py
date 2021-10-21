@@ -1,10 +1,16 @@
+
+import os
 import argparse
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-from colors import inside_colors, name_mapping, hector_color, mapping_data_name
-import os
+from colors import (
+    inside_colors,
+    name_mapping,
+    precise_color_dictionnary,
+    mapping_data_name
+)
 
 
 def options():
@@ -36,7 +42,7 @@ titles = tuple(
 
 tikz_y = [0, 0.25, 0.5, 0.75, 1.0]
 tikz_text_y = ["0.00", "0.25", "0.50", "0.75", "1.00"]
-kernel_methods = ["HSIC", "MMD", "MMD_bis"]
+kernel_methods = ["HSIC", "cMMD"]
 
 
 def main():
@@ -95,7 +101,7 @@ def main():
 
             size_model = np.array(group["k0"])
 
-            fill_color = hector_color[hover_name]
+            fill_color = precise_color_dictionnary[hover_name]
             boxes = go.Box(
                 y=size_model,
                 name=hover_name,
@@ -110,12 +116,11 @@ def main():
 
             fig.add_trace(boxes, row=row_dic[p], col=col_dic[n])
             if display_legend:
-                if name == "MMD":
-                    hover_name = "MMD(gaussian)"
-
+                if name == "cMMD":
+                    hover_name = "cMMD(gaussian)"
                 elif name == "HSIC":
                     hover_name = "HSIC(gaussian)"
-                fill_color = hector_color[hover_name]
+                fill_color = precise_color_dictionnary[hover_name]
                 boxes = go.Scatter(
                     x=[None],
                     y=[None],

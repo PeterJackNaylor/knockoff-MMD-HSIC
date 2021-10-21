@@ -131,10 +131,11 @@ dmypy.json
 work/
 .nextflow/
 .nextflow.*
-env/container_img.sif
+env/*.sif
 outputs
 *.npy
 *.png 
 *-ubyte
 *ubyte.gz
 *.pkl
+results/

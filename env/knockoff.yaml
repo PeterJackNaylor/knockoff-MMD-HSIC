@@ -1,5 +1,7 @@
 name: knockoff
 channels:
+  - conda-forge
+  - bioconda
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
@@ -28,6 +30,9 @@ dependencies:
   - r-plotly
   - r-tidyverse
   - r-htmlwidgets
+  - r-reticulate
+  - bioconductor-summarizedexperiment 
+  - bioconductor-TCGAbiolinks
   - pip:
     - attrs==21.2.0
     - dcor==0.5.3

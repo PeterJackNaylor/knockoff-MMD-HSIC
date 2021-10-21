@@ -1,6 +1,9 @@
 numpy
-pandas
 scikit-learn
+pandas
 pytest
 dcor
 plotly
+kaleido
+mnist
+notebook

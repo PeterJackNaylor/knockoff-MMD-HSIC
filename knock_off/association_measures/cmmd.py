@@ -43,7 +43,7 @@ def indexes_with_respect_to_y(Y):
     return indexes
 
 
-def MMD(X, Y, kernel="gaussian", sigma=None):
+def cMMD(X, Y, kernel="gaussian", sigma=None):
     """
     Computes the cMMM between X and Y with a given kernel.
     Parameters
@@ -75,7 +75,7 @@ def MMD(X, Y, kernel="gaussian", sigma=None):
 
     mmd_stats = np.zeros((d, 1))
     for k in range(d):
-        mmd_stats[k] = MMD_index(
+        mmd_stats[k] = cMMD_index(
             X[:, k],
             group_idx=indexes,
             kernel_name=kernel,
@@ -85,7 +85,7 @@ def MMD(X, Y, kernel="gaussian", sigma=None):
     return mmd_stats
 
 
-def MMD_index(X, group_idx, kernel_name="gaussian", sigma=None):
+def cMMD_index(X, group_idx, kernel_name="gaussian", sigma=None):
     """
     General cMMD V-statistic to be used zith X and categorical data.
     Implements the formula given by
