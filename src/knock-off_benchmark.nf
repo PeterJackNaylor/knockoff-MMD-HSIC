@@ -6,6 +6,9 @@ params.full = 'true'
 
 params.repeats = 1
 
+params.n_1 = 0.3
+n_1 = params.n_1
+
 if (params.full == 'true'){
     DATASETS = [
         "model_1a",
@@ -111,7 +114,7 @@ process knock_off {
         py_file = file("${CWD}/src/model/knock-off.py")
         """
 
-        python $py_file --t $T --n_1 0.3 \\
+        python $py_file --t $T --n_1 ${n_1} \\
                         --d ${associated_d[feature_size]} \\
                         --param "$PARAMS" \\
                         --kernel $k \\
