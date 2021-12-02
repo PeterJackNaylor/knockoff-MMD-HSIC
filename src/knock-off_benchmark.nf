@@ -38,20 +38,18 @@ if (params.full == 'true'){
     NORMALIZE = [0]
 }
 else {
-    DATASETS = ["model_3a"]
+    DATASETS = ["model_2a", "model_2c"]
     ASSOCIATION_MEASURES = [
         "DC",
         "TR",
-        "pearson_correlation",
         "HSIC",
-        "cMMD",
         // "PC"
     ]
     KERNELS = ['linear']
-    sample_size = [100, 500, 1000]
+    sample_size = [100]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
-    feature_size = [5e2, 5e3]
+    feature_size = [5e3]
     NORMALIZE = [0]
 }
 

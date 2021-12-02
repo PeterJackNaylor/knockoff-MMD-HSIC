@@ -19,6 +19,14 @@ test: $(SINGULARITY_IMG)
 real_data: $(SINGULARITY_IMG)
 	$(ENV); nextflow src/knock-off_real_data.nf -profile knockoff -resume
 
+experiment:
+	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 200 --n_1 0.3 --full false -profile knockoff -resume
+	mv ./outputs/simulations_results ./outputs/simulations_results_03
+	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 200 --n_1 0.4 --full false -profile knockoff -resume
+	mv ./outputs/simulations_results ./outputs/simulations_results_04
+	$(ENV); nextflow src/knock-off_benchmark.nf --repeats 200 --n_1 0.5 --full false -profile knockoff -resume
+	mv ./outputs/simulations_results ./outputs/simulations_results_05
+
 .PHONY: clean test
 
 clean:
