@@ -56,7 +56,7 @@ def main():
     table = pd.read_csv(opt.csv_file)
     # set to 0 those which didn't select anything
     table.loc[table["fdr"] == -1, "fdr"] = 0
-    table = table.dropna()
+    #table = table.dropna()
     table = table.loc[table["DATASET"] != 0]
     datasets = np.unique(table["DATASET"])
 
@@ -93,7 +93,7 @@ def main():
                 if name not in ["HSIC", "MMD"]:
                     continue
             else:
-                if name in ["HSIC", "MMD"] and kernel != "gaussian":
+                if name in ["HSIC", "MMD"] and kernel != "linear":
                     continue
 
             alpha_group = group.groupby(["alpha"])
