@@ -43,9 +43,9 @@ else {
         "DC",
         "TR",
         "HSIC",
-        // "PC"
+        "PC"
     ]
-    KERNELS = ['linear']
+    KERNELS = ['distance']
     sample_size = [100]
     // d depends mostly on n
     associated_d = ['100': 50, '500': 300, '1000': 100]
@@ -103,7 +103,7 @@ process knock_off {
         file("fdr.csv") into FDR
     when:
         MMD_and_BINARY = (PARAMS.split(';')[0].split('=')[1] in BINARY_MODELS) || (!(T in BINARY_AM))
-        AM_NO_KERNEL = ((k == "linear") && (normalise == 0)) || (!(T in KERNELLESS_AM))
+        AM_NO_KERNEL = ((k == "distance") && (normalise == 0)) || (!(T in KERNELLESS_AM))
         MMD_and_BINARY && AM_NO_KERNEL
         // cMMD needs binary data
         // only the kernel AM need normalise and kernel looping
