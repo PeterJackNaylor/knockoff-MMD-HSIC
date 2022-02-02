@@ -138,4 +138,4 @@ can't satisfy condition d < n_2 / 2"
             set_one = indices[:int(n1 * n)]
             set_two = indices[int(n1 * n):]
 
-    return stop, screening, set_one, set_two, msg
+    return stop, screening, set_one, set_two, d, msg

@@ -103,7 +103,7 @@ class KnockOff(BaseEstimator, TransformerMixin):
 
         n, p = X.shape
         self.n_features_in_ = p
-        stop, screening, s1, s2, msg = knock_off_check_parameters(n, p, n1, d)
+        stop, screening, s1, s2, d, msg = knock_off_check_parameters(n, p, n1, d)
 
         if stop:
             # raise ValueError(msg)
