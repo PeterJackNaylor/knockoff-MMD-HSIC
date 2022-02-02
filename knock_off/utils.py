@@ -122,7 +122,7 @@ can't satisfy condition d < n_2 / 2"
         # need to check
         if d >= n2 / 2:
             # d not set correctly so we set it to the highest plausible value
-            d = n2 / 2 - 1
+            d = int(n2 / 2 - 1)
             if d <= 0:
                 msg = "Fit is not possible, data too small and \
 can't satisfy condition d < n_2 / 2"
