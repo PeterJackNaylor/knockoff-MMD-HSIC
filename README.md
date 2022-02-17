@@ -33,12 +33,12 @@ profiles {
 ```
 
 ### Possible environnement 
-To offer a couple of possibilities we have set up a Singularity or conda environnement. 
-Nextflow can use either, or the Singularity containers or it will create the conda environnement on the fly.
+To offer a couple of possibilities we have set up a Singularity and conda environnement. 
+Nextflow can use either, it can use Singularity containers or it can create a conda environnement on the fly.
 #### Singularity
 Install [Singularity](https://sylabs.io/guides/3.0/user-guide/quick_start.html) following the official installation guide.
-The nextflow.config file in master and the one above have Singularity enabled. 
-As Singularity uses containers you will have to build the images:
+The nextflow.config file should be in the main folder and have Singularity enabled. 
+As Singularity uses containers you will have to build the images before launching the pipeline:
 There are two containers, one for Python and the other one for R.
 To create the images you will have to run with sudo:
 ``` bash
