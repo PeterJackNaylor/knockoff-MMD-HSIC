@@ -1,6 +1,18 @@
 # knockoff-MMD-HSIC
 Implementation of knockoff with MMD and HSIC. Paper submitted: *Feature screening with kernel knockoffs* by Benjamin Poignard, Peter Naylor, Hector Climente-Gonzales and Makoto Yamada. 
 Accepted in AISTATS 2022.
+
+```bibtex
+@inproceedings{poignard2022feature,
+  title={Feature screening with kernel knockoffs},
+  author={Poignard, Benjamin and Naylor, Peter J and Climente-Gonz{\'a}lez, H{\'e}ctor and Yamada, Makoto},
+  booktitle={International Conference on Artificial Intelligence and Statistics},
+  pages={1935--1974},
+  year={2022},
+  organization={PMLR}
+}
+```
+
 If you use our code, please cite the above paper.
 
 ## Reproducible results
